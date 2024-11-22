@@ -16,12 +16,15 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
     const [showOverlay, setShowOverlay] = useState(false);
     const [pause, setPause] = useState(false);
+    const [counter, setCounter] = useState(0);
     const timeMS = fixedTimeToMS(fixedTime);
+    const TICKS_PER_SLIDE = timeMS / 100;
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
 
     const maxWidthRef = useRef<number>(window.innerWidth);
     const maxHeightRef = useRef<number>(window.innerHeight);
+    console.log(counter);
 
     // Resize the window to fit the image if standalone
     useEffect(() => {
@@ -38,17 +41,31 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         setCurrentImageUrl(url);
 
         // Interval timer
-        const timer = setInterval(() => {
-            setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
-        }, timeMS);
+        let timer: ReturnType<typeof setInterval> | null = null;
+        if (!pause) {
+            timer = setInterval(() => {
+                setCounter((prev) => {
+                    if (prev >= TICKS_PER_SLIDE) {
+                        setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
+                        return 0;
+                    }
+                    return prev + 1;
+                });
+            }, 100);
+        }
 
         // Keypresses
         const handleKeyPress = (event: KeyboardEvent) => {
             if (event.key === "ArrowRight") {
                 setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
+                setCounter(0);
             }
             if (event.key === "ArrowLeft") {
                 setPrevIndex(orderIndex, setOrderIndex);
+                setCounter(0);
+            }
+            if (event.key === " ") {
+                setPause(!pause);
             }
         };
 
@@ -57,10 +74,10 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         // Cleanup function
         return () => {
             URL.revokeObjectURL(url);
-            clearInterval(timer);
+            if (timer) clearInterval(timer);
             window.removeEventListener("keydown", handleKeyPress);
         };
-    }, [orderIndex]);
+    }, [orderIndex, pause]);
 
     useEffect(() => {
         // Set up resize handler
