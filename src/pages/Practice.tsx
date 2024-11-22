@@ -1,6 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { XCircleIcon, ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@heroicons/react/24/outline";
+import {
+    XCircleIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    PauseIcon,
+    PlayIcon,
+    InformationCircleIcon,
+    FolderIcon,
+    TrashIcon,
+    SpeakerWaveIcon,
+    SpeakerXMarkIcon,
+    Square2StackIcon,
+    ArrowsRightLeftIcon,
+    ClockIcon,
+} from "@heroicons/react/24/outline";
+import { Squares2X2Icon, BoltIcon } from "@heroicons/react/24/solid";
 
 import { FixedTime, fixedTimeToMS } from "../types/session";
 import { SlideshowButton } from "../components/buttons";
@@ -19,6 +34,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
     const [showOverlay, setShowOverlay] = useState(false);
     const [pause, setPause] = useState(false);
+    const [mute, setMute] = useState(false);
     const [counter, setCounter] = useState(0);
     const timeMS = fixedTimeToMS(fixedTime);
     const TICKS_PER_SLIDE = timeMS / INTERVAL_MS;
@@ -48,7 +64,14 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
             timer = setInterval(() => {
                 setCounter((prev) => {
                     if (prev >= TICKS_PER_SLIDE) {
-                        setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
+                        setNextIndex(
+                            orderIndex,
+                            setOrderIndex,
+                            imageOrder,
+                            setImageOrder,
+                            setCounter,
+                            imageFiles.length
+                        );
                         return 0;
                     }
                     return prev + 1;
@@ -59,12 +82,10 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         // Keypresses
         const handleKeyPress = (event: KeyboardEvent) => {
             if (event.key === "ArrowRight") {
-                setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
-                setCounter(0);
+                setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, setCounter, imageFiles.length);
             }
             if (event.key === "ArrowLeft") {
-                setPrevIndex(orderIndex, setOrderIndex);
-                setCounter(0);
+                setPrevIndex(orderIndex, setOrderIndex, setCounter);
             }
             if (event.key === " ") {
                 setPause(!pause);
@@ -116,6 +137,9 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
                     length={imageFiles.length}
                     pause={pause}
                     setPause={setPause}
+                    mute={mute}
+                    setMute={setMute}
+                    setCounter={setCounter}
                 />
             )}
         </div>
@@ -131,6 +155,9 @@ interface ButtonOverlayProps {
     length: number;
     pause: boolean;
     setPause: React.Dispatch<React.SetStateAction<boolean>>;
+    mute: boolean;
+    setMute: React.Dispatch<React.SetStateAction<boolean>>;
+    setCounter: React.Dispatch<React.SetStateAction<number>>;
 }
 function ButtonOverlay({
     setRunApp,
@@ -141,23 +168,37 @@ function ButtonOverlay({
     length,
     pause,
     setPause,
+    mute,
+    setMute,
+    setCounter,
 }: ButtonOverlayProps) {
     return (
         <div className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center">
-            <div className="flex flex-col w-full h-full justify-between p-4">
-                <div className="flex justify-left">
+            <div className="flex flex-col-reverse w-full h-full p-4">
+                <div className="flex justify-center space-x-4 pt-12 pb-2">
                     <SlideshowButton Icon={XCircleIcon} onClick={() => setRunApp(false)} />
+                    <SlideshowButton Icon={InformationCircleIcon} onClick={() => console.log("Info button clicked")} />
+                    <SlideshowButton Icon={FolderIcon} onClick={() => console.log("Folder button clicked")} />
+                    <SlideshowButton Icon={TrashIcon} onClick={() => console.log("Trash button clicked")} />
+                    <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={() => setMute(!mute)} />
+                    <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
+                    <SlideshowButton Icon={Squares2X2Icon} onClick={() => console.log("Grid button clicked")} />
+                    <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={() => console.log("Flip button clicked")} />
+                    <SlideshowButton Icon={BoltIcon} onClick={() => console.log("Greyscale button clicked")} />
+                    <SlideshowButton Icon={ClockIcon} onClick={() => console.log("Timer button clicked")} />
                 </div>
                 <div className="flex justify-center space-x-4">
                     <SlideshowButton
                         Icon={ChevronLeftIcon}
-                        onClick={() => setPrevIndex(orderIndex, setOrderIndex)}
+                        onClick={() => setPrevIndex(orderIndex, setOrderIndex, setCounter)}
                         size={"xl"}
                     />
                     <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={() => setPause(!pause)} size={"xl"} />
                     <SlideshowButton
                         Icon={ChevronRightIcon}
-                        onClick={() => setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, length)}
+                        onClick={() =>
+                            setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, setCounter, length)
+                        }
                         size={"xl"}
                     />
                 </div>
@@ -229,6 +270,7 @@ function setNextIndex(
     setIndex: React.Dispatch<React.SetStateAction<number>>,
     order: number[],
     setOrder: React.Dispatch<React.SetStateAction<number[]>>,
+    setCounter: React.Dispatch<React.SetStateAction<number>>,
     length: number
 ) {
     if (index === order.length - 1) {
@@ -240,12 +282,18 @@ function setNextIndex(
     } else {
         setIndex(index + 1);
     }
+    setCounter(0);
 }
 
 // Move to the previous image in the order
-function setPrevIndex(index: number, setIndex: React.Dispatch<React.SetStateAction<number>>) {
+function setPrevIndex(
+    index: number,
+    setIndex: React.Dispatch<React.SetStateAction<number>>,
+    setCounter: React.Dispatch<React.SetStateAction<number>>
+) {
     if (index === 0) {
         return;
     }
     setIndex(index - 1);
+    setCounter(0);
 }
