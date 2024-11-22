@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { FixedTime, fixedTimeToMS } from "../types/session";
+import { XCircleIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
+import { FixedTime, fixedTimeToMS } from "../types/session";
 import { SlideshowButton } from "../components/buttons";
 
 interface PracticeProps {
@@ -107,27 +108,14 @@ function ButtonOverlay({
         <div className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center">
             <div className="flex flex-col w-full h-full justify-between p-4">
                 <div className="flex justify-left">
-                    <SlideshowButton onClick={() => setRunApp(false)} />
+                    <SlideshowButton Icon={XCircleIcon} onClick={() => setRunApp(false)} />
                 </div>
-                <div className="flex justify-between">
-                    <button
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            console.log("Button 2 clicked");
-                        }}
-                    >
-                        Button 2
-                    </button>
-                    <button
-                        className="bg-red-500 text-white px-4 py-2 rounded-md"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, length);
-                        }}
-                    >
-                        Button 3
-                    </button>
+                <div className="flex justify-center space-x-4">
+                    <SlideshowButton Icon={ChevronLeftIcon} onClick={() => console.log("Button 2 clicked")} />
+                    <SlideshowButton
+                        Icon={ChevronRightIcon}
+                        onClick={() => setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, length)}
+                    />
                 </div>
             </div>
         </div>

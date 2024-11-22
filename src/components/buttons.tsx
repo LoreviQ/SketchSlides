@@ -1,5 +1,4 @@
 import { SessionType, FixedTime } from "../types/session";
-import { XCircleIcon } from "@heroicons/react/24/outline";
 
 interface ToggleButtonProps<T extends SessionType | FixedTime> {
     label: T;
@@ -27,9 +26,10 @@ export function ToggleButton<T extends SessionType | FixedTime>({
 
 interface SlideshowButtonProps {
     onClick: () => void;
+    Icon: React.ComponentType<{ className?: string }>;
 }
 
-export function SlideshowButton({ onClick }: SlideshowButtonProps) {
+export function SlideshowButton({ onClick, Icon }: SlideshowButtonProps) {
     return (
         <button
             className="bg-black/50 text-white rounded-full p-2 hover:bg-gray-700"
@@ -38,7 +38,7 @@ export function SlideshowButton({ onClick }: SlideshowButtonProps) {
                 onClick();
             }}
         >
-            <XCircleIcon className="size-6 text-white" />
+            <Icon className="size-6 text-white" />
         </button>
     );
 }
