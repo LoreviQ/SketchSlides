@@ -11,9 +11,9 @@ interface PracticeProps {
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeProps) {
-    const [imageOrder, setImageOrder] = useState<number[]>(generateRandomOrder(imageFiles.length));
+    const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
     const [fileIndex, setFileIndex] = useState(imageOrder[0]);
-    const [currentImageUrl, setCurrentImageUrl] = useState<string>(URL.createObjectURL(imageFiles[fileIndex]));
+    const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[fileIndex]));
     const [showOverlay, setShowOverlay] = useState(false);
     const timeMS = fixedTimeToMS(fixedTime);
     const isStandalone =
@@ -175,7 +175,7 @@ function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
 
 // Generate a random order of indices for an array of length
 function generateRandomOrder(length: number): number[] {
-    const numIndexes = Math.min(50, length);
+    const numIndexes = Math.min(5, length);
 
     // More efficient to shuffle if length is small
     if (numIndexes > length / 2) {
@@ -205,9 +205,14 @@ function setNextIndex(
 ) {
     const currentPosition = order.indexOf(index);
     if (currentPosition === order.length - 1) {
-        setOrder((order) => [...order, ...generateRandomOrder(length)]);
+        setOrder((order) => {
+            const newOrder = [...order, ...generateRandomOrder(length)];
+            setIndex(newOrder[currentPosition + 1]);
+            return newOrder;
+        });
+    } else {
+        setIndex(order[currentPosition + 1]);
     }
-    setIndex(order[currentPosition + 1]);
 }
 
 function setPrevIndex(index: number, setIndex: React.Dispatch<React.SetStateAction<number>>, order: number[]) {
