@@ -12,7 +12,7 @@ interface PracticeProps {
 export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeProps) {
     const [imageOrder, setImageOrder] = useState<number[]>(generateRandomOrder(imageFiles.length));
     const [orderIndex, setOrderIndex] = useState(imageOrder[0]);
-    const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
+    const [currentImageUrl, setCurrentImageUrl] = useState<string>(URL.createObjectURL(imageFiles[orderIndex]));
     const [showOverlay, setShowOverlay] = useState(false);
     const timeMS = fixedTimeToMS(fixedTime);
     const isStandalone =
