@@ -187,14 +187,18 @@ function ButtonOverlay({
 }: ButtonOverlayProps) {
     const showImageInfo = () => {
         const currentFile = imageFiles[imageOrder[orderIndex]];
-        const sizeInMB = (currentFile.size / (1024 * 1024)).toFixed(2);
-        const lastModified = new Date(currentFile.lastModified).toLocaleString();
+        const img = document.querySelector("img"); // Use the existing image element
+        const fullPath = currentFile.webkitRelativePath ? `${currentFile.webkitRelativePath}` : `${currentFile.name}`;
 
         const info = `File Information:
-- Name: ${currentFile.name}
-- Type: ${currentFile.type}
-- Size: ${sizeInMB} MB
-- Last Modified: ${lastModified}`;
+    - Name: ${fullPath}
+    - Type: ${currentFile.type}
+    - Size: ${(currentFile.size / (1024 * 1024)).toFixed(2)} MB
+    - Last Modified: ${new Date(currentFile.lastModified).toLocaleString()}
+    
+    Image Properties:
+    - Dimensions: ${img?.naturalWidth} x ${img?.naturalHeight} pixels
+    - Aspect Ratio: ${img ? (img.width / img.height).toFixed(2) : "N/A"}`;
 
         alert(info);
     };
