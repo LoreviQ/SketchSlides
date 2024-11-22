@@ -130,7 +130,14 @@ function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
         const adjustedWidth = newWidth + browserUIWidth;
         const adjustedHeight = newHeight + browserUIHeight;
 
-        // Resize the window to fit the image
+        // Move the window so the resize is centered
+        const currentLeft = window.screenX;
+        const currentTop = window.screenY;
+        const newLeft = currentLeft - (adjustedWidth - window.innerWidth) / 2;
+        const newTop = currentTop - (adjustedHeight - window.innerHeight) / 2;
+
+        // Resize and reposition the window
         window.resizeTo(adjustedWidth, adjustedHeight);
+        window.moveTo(newLeft, newTop);
     };
 }
