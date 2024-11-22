@@ -149,11 +149,16 @@ function ButtonOverlay({
                     <SlideshowButton Icon={XCircleIcon} onClick={() => setRunApp(false)} />
                 </div>
                 <div className="flex justify-center space-x-4">
-                    <SlideshowButton Icon={ChevronLeftIcon} onClick={() => setPrevIndex(orderIndex, setOrderIndex)} />
-                    <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={() => setPause(!pause)} />
+                    <SlideshowButton
+                        Icon={ChevronLeftIcon}
+                        onClick={() => setPrevIndex(orderIndex, setOrderIndex)}
+                        size={"xl"}
+                    />
+                    <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={() => setPause(!pause)} size={"xl"} />
                     <SlideshowButton
                         Icon={ChevronRightIcon}
                         onClick={() => setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, length)}
+                        size={"xl"}
                     />
                 </div>
             </div>

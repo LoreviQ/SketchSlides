@@ -27,18 +27,37 @@ export function ToggleButton<T extends SessionType | FixedTime>({
 interface SlideshowButtonProps {
     onClick: () => void;
     Icon: React.ComponentType<{ className?: string }>;
+    size?: "sm" | "md" | "lg" | "xl"; // Using preset sizes instead
 }
 
-export function SlideshowButton({ onClick, Icon }: SlideshowButtonProps) {
+export function SlideshowButton({ onClick, Icon, size = "md" }: SlideshowButtonProps) {
+    const sizeClasses = {
+        sm: {
+            p: "p-1",
+            size: "size-5",
+        },
+        md: {
+            p: "p-2",
+            size: "size-6",
+        },
+        lg: {
+            p: "p-3",
+            size: "size-8",
+        },
+        xl: {
+            p: "p-4",
+            size: "size-10",
+        },
+    };
     return (
         <button
-            className="bg-black/50 text-white rounded-full p-2 hover:bg-gray-700"
+            className={`bg-black/50 text-white rounded-full ${sizeClasses[size]["p"]} hover:bg-gray-700`}
             onClick={(e) => {
                 e.stopPropagation();
                 onClick();
             }}
         >
-            <Icon className="size-6 text-white" />
+            <Icon className={`${sizeClasses[size]["size"]} text-white`} />
         </button>
     );
 }
