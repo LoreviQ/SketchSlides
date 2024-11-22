@@ -16,6 +16,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Squares2X2Icon, BoltIcon } from "@heroicons/react/24/solid";
 
+import type { SelectedFolder } from "../types/folder";
 import { FixedTime, fixedTimeToMS } from "../types/session";
 import { SlideshowButton } from "../components/buttons";
 import { ProgressBar } from "../components/progressBars";
@@ -24,10 +25,12 @@ const INTERVAL_MS = 10;
 
 interface PracticeProps {
     fixedTime: FixedTime;
+    selectedFolder: SelectedFolder;
     imageFiles: File[];
+    setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeProps) {
+export default function Practice({ fixedTime, selectedFolder, imageFiles, setImageFiles, setRunApp }: PracticeProps) {
     const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
     const [orderIndex, setOrderIndex] = useState(0);
     const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
@@ -64,6 +67,44 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         }
         setOrderIndex(orderIndex - 1);
         setCounter(0);
+    };
+
+    const deleteCurrentFile = async () => {
+        const currentFile = imageFiles[imageOrder[orderIndex]];
+        const deletedValue = imageOrder[orderIndex];
+
+        // Show confirmation dialog
+        const confirmDelete = window.confirm(`Are you sure you want to delete:\n${currentFile.name}?`);
+        if (!confirmDelete) return;
+
+        try {
+            // Get file handle from the directory handle
+            await selectedFolder.dirHandle.removeEntry(currentFile.name);
+
+            // Update app state
+            const newImageFiles = [...imageFiles];
+            newImageFiles.splice(imageOrder[orderIndex], 1);
+
+            // If no files left, return to settings
+            if (newImageFiles.length === 0) {
+                alert("No more images in folder. Returning to settings.");
+                setRunApp(false);
+                return;
+            }
+
+            // Update image order: remove all instances of deletedValue and decrement higher values
+            const removedBeforeCurrent = imageOrder.slice(0, orderIndex).filter((idx) => idx === deletedValue).length;
+            const newOrder = imageOrder
+                .filter((idx) => idx !== deletedValue)
+                .map((idx) => (idx > deletedValue ? idx - 1 : idx));
+
+            setImageOrder(newOrder);
+            setImageFiles(newImageFiles);
+            setOrderIndex(orderIndex - removedBeforeCurrent);
+        } catch (error) {
+            console.error("Error deleting file:", error);
+            alert("Failed to delete file. Make sure you have permission to modify files in this folder.");
+        }
     };
 
     // Resize the window to fit the image if standalone
@@ -154,6 +195,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
                     setRunApp={setRunApp}
                     next={() => next()}
                     prev={() => prev()}
+                    deleteCurrentFile={deleteCurrentFile}
                 />
             )}
         </div>
@@ -171,6 +213,7 @@ interface ButtonOverlayProps {
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     next: () => void;
     prev: () => void;
+    deleteCurrentFile: () => void;
 }
 function ButtonOverlay({
     orderIndex,
@@ -183,6 +226,7 @@ function ButtonOverlay({
     setRunApp,
     next,
     prev,
+    deleteCurrentFile,
 }: ButtonOverlayProps) {
     // Alerts the user with information about the current image
     const showImageInfo = () => {
@@ -209,7 +253,13 @@ function ButtonOverlay({
                 <div className="flex justify-center space-x-4 pt-12 pb-2">
                     <SlideshowButton Icon={XCircleIcon} onClick={() => setRunApp(false)} />
                     <SlideshowButton Icon={InformationCircleIcon} onClick={showImageInfo} />
-                    <SlideshowButton Icon={TrashIcon} onClick={() => console.log("Trash button clicked")} />
+                    <SlideshowButton
+                        Icon={TrashIcon}
+                        onClick={() => {
+                            deleteCurrentFile();
+                            next();
+                        }}
+                    />
                     <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={() => setMute(!mute)} />
                     <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
                     <SlideshowButton Icon={Squares2X2Icon} onClick={() => console.log("Grid button clicked")} />

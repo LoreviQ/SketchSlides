@@ -24,7 +24,13 @@ export default function App() {
             case SessionType.Practice:
                 return (
                     <Suspense fallback={<div>Loading...</div>}>
-                        <Practice fixedTime={fixedTime} imageFiles={imageFiles} setRunApp={setRunApp} />
+                        <Practice
+                            fixedTime={fixedTime}
+                            selectedFolder={selectedFolder}
+                            imageFiles={imageFiles}
+                            setImageFiles={setImageFiles}
+                            setRunApp={setRunApp}
+                        />
                     </Suspense>
                 );
             case SessionType.Class:
