@@ -12,8 +12,8 @@ interface PracticeProps {
 }
 export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeProps) {
     const [imageOrder, setImageOrder] = useState<number[]>(generateRandomOrder(imageFiles.length));
-    const [orderIndex, setOrderIndex] = useState(imageOrder[0]);
-    const [currentImageUrl, setCurrentImageUrl] = useState<string>(URL.createObjectURL(imageFiles[orderIndex]));
+    const [fileIndex, setFileIndex] = useState(imageOrder[0]);
+    const [currentImageUrl, setCurrentImageUrl] = useState<string>(URL.createObjectURL(imageFiles[fileIndex]));
     const [showOverlay, setShowOverlay] = useState(false);
     const timeMS = fixedTimeToMS(fixedTime);
     const isStandalone =
@@ -24,13 +24,13 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
 
     // Update the current image URL based on the current image index
     useEffect(() => {
-        const currentFile = imageFiles[orderIndex];
+        const currentFile = imageFiles[fileIndex];
         if (currentFile) {
             const url = URL.createObjectURL(currentFile);
             setCurrentImageUrl(url);
             return () => URL.revokeObjectURL(url);
         }
-    }, [imageFiles, orderIndex]);
+    }, [imageFiles, fileIndex]);
 
     // Resize the window to fit the image if standalone
     useEffect(() => {
@@ -40,10 +40,11 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         }
     }, [currentImageUrl, isStandalone]);
 
+    // Setup and teardown
     useEffect(() => {
         // Set up interval timer
         const timer = setInterval(() => {
-            setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
+            setNextIndex(fileIndex, setFileIndex, imageOrder, setImageOrder, imageFiles.length);
         }, timeMS);
 
         // Set up resize handler
@@ -55,7 +56,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         // Set up keypress handler
         const handleKeyPress = (event: KeyboardEvent) => {
             if (event.key === "ArrowRight") {
-                setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
+                setNextIndex(fileIndex, setFileIndex, imageOrder, setImageOrder, imageFiles.length);
             }
         };
 
@@ -78,14 +79,14 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         >
             <img
                 src={currentImageUrl}
-                alt={`Image ${orderIndex + 1}`}
+                alt={`Image ${fileIndex + 1}`}
                 className="max-w-full max-h-full object-contain"
             />
             {showOverlay && (
                 <ButtonOverlay
                     setRunApp={setRunApp}
-                    orderIndex={orderIndex}
-                    setOrderIndex={setOrderIndex}
+                    orderIndex={fileIndex}
+                    setOrderIndex={setFileIndex}
                     imageOrder={imageOrder}
                     setImageOrder={setImageOrder}
                     length={imageFiles.length}
@@ -118,7 +119,10 @@ function ButtonOverlay({
                     <SlideshowButton Icon={XCircleIcon} onClick={() => setRunApp(false)} />
                 </div>
                 <div className="flex justify-center space-x-4">
-                    <SlideshowButton Icon={ChevronLeftIcon} onClick={() => console.log("Button 1 clicked")} />
+                    <SlideshowButton
+                        Icon={ChevronLeftIcon}
+                        onClick={() => setPrevIndex(orderIndex, setOrderIndex, imageOrder)}
+                    />
                     <SlideshowButton Icon={PauseIcon} onClick={() => console.log("Button 2 clicked")} />
                     <SlideshowButton
                         Icon={ChevronRightIcon}
@@ -188,4 +192,13 @@ function setNextIndex(
         setOrder(generateRandomOrder(length));
     }
     setIndex(order[nextPosition]);
+}
+
+function setPrevIndex(index: number, setIndex: React.Dispatch<React.SetStateAction<number>>, order: number[]) {
+    const currentPosition = order.indexOf(index);
+    if (currentPosition === 0) {
+        return;
+    }
+    const prevPosition = currentPosition - 1;
+    setIndex(order[prevPosition]);
 }
