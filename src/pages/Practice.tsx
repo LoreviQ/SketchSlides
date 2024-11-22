@@ -44,6 +44,29 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     const maxWidthRef = useRef<number>(window.innerWidth);
     const maxHeightRef = useRef<number>(window.innerHeight);
 
+    // Move to the next image in the order
+    const next = () => {
+        if (orderIndex === imageOrder.length - 1) {
+            setImageOrder((imageOrder) => {
+                const newOrder = [...imageOrder, ...generateRandomOrder(imageFiles.length)];
+                setOrderIndex(orderIndex + 1);
+                return newOrder;
+            });
+        } else {
+            setOrderIndex(orderIndex + 1);
+        }
+        setCounter(0);
+    };
+
+    // Move to the previous image in the order
+    const prev = () => {
+        if (orderIndex === 0) {
+            return;
+        }
+        setOrderIndex(orderIndex - 1);
+        setCounter(0);
+    };
+
     // Resize the window to fit the image if standalone
     useEffect(() => {
         if (isStandalone) {
@@ -64,14 +87,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
             timer = setInterval(() => {
                 setCounter((prev) => {
                     if (prev >= TICKS_PER_SLIDE) {
-                        setNextIndex(
-                            orderIndex,
-                            setOrderIndex,
-                            imageOrder,
-                            setImageOrder,
-                            setCounter,
-                            imageFiles.length
-                        );
+                        next();
                         return 0;
                     }
                     return prev + 1;
@@ -82,10 +98,10 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         // Keypresses
         const handleKeyPress = (event: KeyboardEvent) => {
             if (event.key === "ArrowRight") {
-                setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, setCounter, imageFiles.length);
+                next();
             }
             if (event.key === "ArrowLeft") {
-                setPrevIndex(orderIndex, setOrderIndex, setCounter);
+                prev();
             }
             if (event.key === " ") {
                 setPause(!pause);
@@ -129,17 +145,16 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
             <ProgressBar fraction={counter / TICKS_PER_SLIDE} />
             {showOverlay && (
                 <ButtonOverlay
-                    setRunApp={setRunApp}
                     orderIndex={orderIndex}
-                    setOrderIndex={setOrderIndex}
                     imageOrder={imageOrder}
-                    setImageOrder={setImageOrder}
-                    length={imageFiles.length}
+                    imageFiles={imageFiles}
                     pause={pause}
-                    setPause={setPause}
                     mute={mute}
+                    setPause={setPause}
                     setMute={setMute}
-                    setCounter={setCounter}
+                    setRunApp={setRunApp}
+                    next={() => next()}
+                    prev={() => prev()}
                 />
             )}
         </div>
@@ -147,37 +162,49 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
 }
 
 interface ButtonOverlayProps {
-    setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     orderIndex: number;
-    setOrderIndex: React.Dispatch<React.SetStateAction<number>>;
     imageOrder: number[];
-    setImageOrder: React.Dispatch<React.SetStateAction<number[]>>;
-    length: number;
+    imageFiles: File[];
     pause: boolean;
-    setPause: React.Dispatch<React.SetStateAction<boolean>>;
     mute: boolean;
+    setPause: React.Dispatch<React.SetStateAction<boolean>>;
     setMute: React.Dispatch<React.SetStateAction<boolean>>;
-    setCounter: React.Dispatch<React.SetStateAction<number>>;
+    setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
+    next: () => void;
+    prev: () => void;
 }
 function ButtonOverlay({
-    setRunApp,
     orderIndex,
-    setOrderIndex,
     imageOrder,
-    setImageOrder,
-    length,
+    imageFiles,
     pause,
-    setPause,
     mute,
+    setPause,
     setMute,
-    setCounter,
+    setRunApp,
+    next,
+    prev,
 }: ButtonOverlayProps) {
+    const showImageInfo = () => {
+        const currentFile = imageFiles[imageOrder[orderIndex]];
+        const sizeInMB = (currentFile.size / (1024 * 1024)).toFixed(2);
+        const lastModified = new Date(currentFile.lastModified).toLocaleString();
+
+        const info = `File Information:
+- Name: ${currentFile.name}
+- Type: ${currentFile.type}
+- Size: ${sizeInMB} MB
+- Last Modified: ${lastModified}`;
+
+        alert(info);
+    };
+
     return (
         <div className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center">
             <div className="flex flex-col-reverse w-full h-full p-4">
                 <div className="flex justify-center space-x-4 pt-12 pb-2">
                     <SlideshowButton Icon={XCircleIcon} onClick={() => setRunApp(false)} />
-                    <SlideshowButton Icon={InformationCircleIcon} onClick={() => console.log("Info button clicked")} />
+                    <SlideshowButton Icon={InformationCircleIcon} onClick={showImageInfo} />
                     <SlideshowButton Icon={FolderIcon} onClick={() => console.log("Folder button clicked")} />
                     <SlideshowButton Icon={TrashIcon} onClick={() => console.log("Trash button clicked")} />
                     <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={() => setMute(!mute)} />
@@ -188,19 +215,9 @@ function ButtonOverlay({
                     <SlideshowButton Icon={ClockIcon} onClick={() => console.log("Timer button clicked")} />
                 </div>
                 <div className="flex justify-center space-x-4">
-                    <SlideshowButton
-                        Icon={ChevronLeftIcon}
-                        onClick={() => setPrevIndex(orderIndex, setOrderIndex, setCounter)}
-                        size={"xl"}
-                    />
+                    <SlideshowButton Icon={ChevronLeftIcon} onClick={() => prev()} size={"xl"} />
                     <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={() => setPause(!pause)} size={"xl"} />
-                    <SlideshowButton
-                        Icon={ChevronRightIcon}
-                        onClick={() =>
-                            setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, setCounter, length)
-                        }
-                        size={"xl"}
-                    />
+                    <SlideshowButton Icon={ChevronRightIcon} onClick={() => next()} size={"xl"} />
                 </div>
             </div>
         </div>
@@ -262,38 +279,4 @@ function generateRandomOrder(length: number): number[] {
         result.add(Math.floor(Math.random() * length));
     }
     return Array.from(result);
-}
-
-// Move to the next image in the order
-function setNextIndex(
-    index: number,
-    setIndex: React.Dispatch<React.SetStateAction<number>>,
-    order: number[],
-    setOrder: React.Dispatch<React.SetStateAction<number[]>>,
-    setCounter: React.Dispatch<React.SetStateAction<number>>,
-    length: number
-) {
-    if (index === order.length - 1) {
-        setOrder((order) => {
-            const newOrder = [...order, ...generateRandomOrder(length)];
-            setIndex(index + 1);
-            return newOrder;
-        });
-    } else {
-        setIndex(index + 1);
-    }
-    setCounter(0);
-}
-
-// Move to the previous image in the order
-function setPrevIndex(
-    index: number,
-    setIndex: React.Dispatch<React.SetStateAction<number>>,
-    setCounter: React.Dispatch<React.SetStateAction<number>>
-) {
-    if (index === 0) {
-        return;
-    }
-    setIndex(index - 1);
-    setCounter(0);
 }
