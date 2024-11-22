@@ -20,6 +20,7 @@ import type { SelectedFolder } from "../types/folder";
 import { FixedTime, fixedTimeToMS } from "../types/session";
 import { SlideshowButton } from "../components/buttons";
 import { ProgressBar } from "../components/progressBars";
+import { timerAlerts } from "../utils/alerts";
 
 const INTERVAL_MS = 10;
 
@@ -126,6 +127,18 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
         if (!pause) {
             timer = setInterval(() => {
                 setCounter((prev) => {
+                    const remainingTicks = TICKS_PER_SLIDE - prev;
+                    const remainingSeconds = (remainingTicks * INTERVAL_MS) / 1000;
+                    // Play sounds at specific remaining times if not muted
+                    if (!mute) {
+                        if (remainingSeconds <= 3.01 && remainingSeconds > 2.99) {
+                            timerAlerts.threeSec();
+                        } else if (remainingSeconds <= 2.01 && remainingSeconds > 1.99) {
+                            timerAlerts.twoSec();
+                        } else if (remainingSeconds <= 1.01 && remainingSeconds > 0.99) {
+                            timerAlerts.oneSec();
+                        }
+                    }
                     if (prev >= TICKS_PER_SLIDE) {
                         next();
                         return 0;
@@ -156,7 +169,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
             if (timer) clearInterval(timer);
             window.removeEventListener("keydown", handleKeyPress);
         };
-    }, [orderIndex, pause]);
+    }, [orderIndex, pause, mute]);
 
     useEffect(() => {
         // Set up resize handler
