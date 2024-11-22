@@ -14,12 +14,12 @@ import {
     ArrowsRightLeftIcon,
     ClockIcon,
 } from "@heroicons/react/24/outline";
-import { Squares2X2Icon, BoltIcon } from "@heroicons/react/24/solid";
+import { BoltIcon } from "@heroicons/react/24/solid";
 
 import type { SelectedFolder } from "../types/folder";
 import { FixedTime, fixedTimeToMS } from "../types/session";
 import { SlideshowButton } from "../components/buttons";
-import { ProgressBar } from "../components/progressBars";
+import { ImageGrid, ProgressBar } from "../components/slideshow";
 import { timerAlerts } from "../utils/alerts";
 import { useToggle } from "../utils/hooks";
 import { GridIcon } from "../assets/icons";
@@ -38,9 +38,10 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
     const [orderIndex, setOrderIndex] = useState(0);
     const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
     const [showOverlay, toggleShowOverlay] = useToggle(false);
-    const [flip, toggleFlip] = useToggle(false);
-    const [mute, toggleMute] = useToggle(false);
     const [pause, togglePause] = useToggle(false);
+    const [mute, toggleMute] = useToggle(false);
+    const [grid, toggleGrid] = useToggle(false);
+    const [flip, toggleFlip] = useToggle(false);
     const [greyscale, toggleGreyscale] = useToggle(false);
     const [timer, toggleTimer] = useToggle(false);
     const [counter, setCounter] = useState(0);
@@ -200,6 +201,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
                 alt={`Image ${imageOrder[orderIndex] + 1}`}
                 className={`w-full h-full object-contain ${flip ? "scale-x-[-1]" : ""} ${greyscale ? "grayscale" : ""}`}
             />
+            {grid && <ImageGrid />}
             {timer && <ProgressBar fraction={counter / TICKS_PER_SLIDE} />}
             {showOverlay && (
                 <ButtonOverlay
@@ -210,6 +212,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
                     mute={mute}
                     togglePause={togglePause}
                     toggleMute={toggleMute}
+                    toggleGrid={toggleGrid}
                     toggleFlip={toggleFlip}
                     toggleGreyscale={toggleGreyscale}
                     toggleTimer={toggleTimer}
@@ -231,6 +234,7 @@ interface ButtonOverlayProps {
     mute: boolean;
     togglePause: () => void;
     toggleMute: () => void;
+    toggleGrid: () => void;
     toggleFlip: () => void;
     toggleGreyscale: () => void;
     toggleTimer: () => void;
@@ -247,6 +251,7 @@ function ButtonOverlay({
     mute,
     togglePause,
     toggleMute,
+    toggleGrid,
     toggleFlip,
     toggleGreyscale,
     toggleTimer,
@@ -289,7 +294,7 @@ function ButtonOverlay({
                     />
                     <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={toggleMute} />
                     <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
-                    <SlideshowButton Icon={GridIcon} onClick={() => console.log("Grid button clicked")} />
+                    <SlideshowButton Icon={GridIcon} onClick={toggleGrid} />
                     <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={toggleFlip} />
                     <SlideshowButton Icon={BoltIcon} onClick={toggleGreyscale} />
                     <SlideshowButton Icon={ClockIcon} onClick={toggleTimer} />
