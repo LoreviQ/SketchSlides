@@ -83,7 +83,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
             <img
                 src={currentImageUrl}
                 alt={`Image ${imageOrder[orderIndex] + 1}`}
-                className="max-w-full max-h-full object-contain"
+                className="w-full h-full object-contain"
             />
             {showOverlay && (
                 <ButtonOverlay
