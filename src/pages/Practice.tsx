@@ -24,14 +24,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     // Update the current image index based on an interval of timeMS
     useEffect(() => {
         const timer = setInterval(() => {
-            setOrderIndex((prevIndex) => {
-                const currentPosition = imageOrder.indexOf(prevIndex);
-                const nextPosition = (currentPosition + 1) % imageFiles.length;
-                if (nextPosition === 0) {
-                    setImageOrder(generateRandomOrder(imageFiles.length));
-                }
-                return imageOrder[nextPosition];
-            });
+            setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
         }, timeMS);
 
         return () => clearInterval(timer);
@@ -114,6 +107,7 @@ function ButtonOverlay({ setRunApp }: ButtonOverlayProps) {
     );
 }
 
+// Resize and reposition the window to fit the image
 function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
     const img = new Image();
     img.src = url;
@@ -147,6 +141,7 @@ function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
     };
 }
 
+// Generate a random order of indices for an array of length
 function generateRandomOrder(length: number): number[] {
     const order = Array.from({ length }, (_, i) => i);
     for (let i = order.length - 1; i > 0; i--) {
@@ -154,4 +149,20 @@ function generateRandomOrder(length: number): number[] {
         [order[i], order[j]] = [order[j], order[i]];
     }
     return order;
+}
+
+// Set the next index in the order based on the current index
+function setNextIndex(
+    index: number,
+    setIndex: React.Dispatch<React.SetStateAction<number>>,
+    order: number[],
+    setOrder: React.Dispatch<React.SetStateAction<number[]>>,
+    length: number
+) {
+    const currentPosition = order.indexOf(index);
+    const nextPosition = (currentPosition + 1) % length;
+    if (nextPosition === 0) {
+        setOrder(generateRandomOrder(length));
+    }
+    setIndex(order[nextPosition]);
 }
