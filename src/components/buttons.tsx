@@ -25,16 +25,17 @@ export function ToggleButton<T extends SessionType | FixedTime>({
     );
 }
 
-interface SlideshowButtonnProps {
-    setter: (value: boolean) => void;
+interface SlideshowButtonProps {
+    onClick: () => void;
 }
-export function SlideshowButton({ setter }: SlideshowButtonnProps) {
+
+export function SlideshowButton({ onClick }: SlideshowButtonProps) {
     return (
         <button
             className="bg-black/50 text-white rounded-full p-2 hover:bg-gray-700"
             onClick={(e) => {
                 e.stopPropagation();
-                setter(false);
+                onClick();
             }}
         >
             <XCircleIcon className="size-6 text-white" />
