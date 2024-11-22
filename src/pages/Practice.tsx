@@ -73,15 +73,36 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
                 alt={`Image ${orderIndex + 1}`}
                 className="max-w-full max-h-full object-contain"
             />
-            {showOverlay && <ButtonOverlay setRunApp={setRunApp} />}
+            {showOverlay && (
+                <ButtonOverlay
+                    setRunApp={setRunApp}
+                    orderIndex={orderIndex}
+                    setOrderIndex={setOrderIndex}
+                    imageOrder={imageOrder}
+                    setImageOrder={setImageOrder}
+                    length={imageFiles.length}
+                />
+            )}
         </div>
     );
 }
 
 interface ButtonOverlayProps {
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
+    orderIndex: number;
+    setOrderIndex: React.Dispatch<React.SetStateAction<number>>;
+    imageOrder: number[];
+    setImageOrder: React.Dispatch<React.SetStateAction<number[]>>;
+    length: number;
 }
-function ButtonOverlay({ setRunApp }: ButtonOverlayProps) {
+function ButtonOverlay({
+    setRunApp,
+    orderIndex,
+    setOrderIndex,
+    imageOrder,
+    setImageOrder,
+    length,
+}: ButtonOverlayProps) {
     return (
         <div className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center">
             <div className="flex flex-col w-full h-full justify-between p-4">
@@ -97,7 +118,7 @@ function ButtonOverlay({ setRunApp }: ButtonOverlayProps) {
                     </button>
                     <button
                         className="bg-red-500 text-white px-4 py-2 rounded-md"
-                        onClick={() => console.log("Button 3 clicked")}
+                        onClick={() => setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, length)}
                     >
                         Button 3
                     </button>
