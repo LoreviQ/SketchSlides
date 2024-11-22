@@ -23,14 +23,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     const maxHeightRef = useRef<number>(window.innerHeight);
 
     // Update the current image URL based on the current image index
-    useEffect(() => {
-        const currentFile = imageFiles[fileIndex];
-        if (currentFile) {
-            const url = URL.createObjectURL(currentFile);
-            setCurrentImageUrl(url);
-            return () => URL.revokeObjectURL(url);
-        }
-    }, [imageFiles, fileIndex]);
+    useEffect(() => {}, [fileIndex]);
 
     // Resize the window to fit the image if standalone
     useEffect(() => {
@@ -39,11 +32,24 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         }
     }, [currentImageUrl, isStandalone]);
 
-    // Keypress listener
     useEffect(() => {
+        // Current image URL
+        const currentFile = imageFiles[fileIndex];
+        const url = URL.createObjectURL(currentFile);
+        setCurrentImageUrl(url);
+
+        // Interval timer
+        const timer = setInterval(() => {
+            setNextIndex(fileIndex, setFileIndex, imageOrder, setImageOrder, imageFiles.length);
+        }, timeMS);
+
+        // Keypresses
         const handleKeyPress = (event: KeyboardEvent) => {
             if (event.key === "ArrowRight") {
                 setNextIndex(fileIndex, setFileIndex, imageOrder, setImageOrder, imageFiles.length);
+            }
+            if (event.key === "ArrowLeft") {
+                setPrevIndex(fileIndex, setFileIndex, imageOrder);
             }
         };
 
@@ -51,29 +57,22 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
 
         // Cleanup function
         return () => {
+            URL.revokeObjectURL(url);
+            clearInterval(timer);
             window.removeEventListener("keydown", handleKeyPress);
         };
-    }, [fileIndex, imageOrder]);
+    }, [fileIndex]);
 
-    // Setup and teardown
     useEffect(() => {
-        // Set up interval timer
-        const timer = setInterval(() => {
-            setNextIndex(fileIndex, setFileIndex, imageOrder, setImageOrder, imageFiles.length);
-        }, timeMS);
-
         // Set up resize handler
         const handleResize = () => {
             maxWidthRef.current = window.innerWidth;
             maxHeightRef.current = window.innerHeight;
         };
-
-        // Add event listeners
         window.addEventListener("resize", handleResize);
 
         // Cleanup function
         return () => {
-            clearInterval(timer);
             window.removeEventListener("resize", handleResize);
         };
     }, []);
@@ -176,12 +175,24 @@ function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
 
 // Generate a random order of indices for an array of length
 function generateRandomOrder(length: number): number[] {
-    const order = Array.from({ length }, (_, i) => i);
-    for (let i = order.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [order[i], order[j]] = [order[j], order[i]];
+    const numIndexes = Math.min(50, length);
+
+    // More efficient to shuffle if length is small
+    if (numIndexes > length / 2) {
+        const order = Array.from({ length }, (_, i) => i);
+        for (let i = 0; i < numIndexes; i++) {
+            const j = i + Math.floor(Math.random() * (length - i));
+            [order[i], order[j]] = [order[j], order[i]];
+        }
+        return order.slice(0, numIndexes);
     }
-    return order;
+
+    // Otherwise, use a set to ensure uniqueness
+    const result = new Set<number>();
+    while (result.size < numIndexes) {
+        result.add(Math.floor(Math.random() * length));
+    }
+    return Array.from(result);
 }
 
 // Set the next index in the order based on the current index
@@ -193,11 +204,10 @@ function setNextIndex(
     length: number
 ) {
     const currentPosition = order.indexOf(index);
-    const nextPosition = (currentPosition + 1) % length;
-    if (nextPosition === 0) {
-        setOrder(generateRandomOrder(length));
+    if (currentPosition === order.length - 1) {
+        setOrder((order) => [...order, ...generateRandomOrder(length)]);
     }
-    setIndex(order[nextPosition]);
+    setIndex(order[currentPosition + 1]);
 }
 
 function setPrevIndex(index: number, setIndex: React.Dispatch<React.SetStateAction<number>>, order: number[]) {
