@@ -2,28 +2,20 @@ import { SessionType, FixedTime } from "../types/session";
 import { ToggleButton } from "../components/buttons";
 import { formatFileSize } from "../utils/formatters";
 
-import type { SelectedFolder } from "../types/folder";
+import type { SelectedFolder } from "../types/preferences";
+import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 
 interface SettingsProps {
-    sessionType: SessionType;
-    setSessionType: React.Dispatch<React.SetStateAction<SessionType>>;
-    fixedTime: FixedTime;
-    setFixedTime: React.Dispatch<React.SetStateAction<FixedTime>>;
     selectedFolder: null | SelectedFolder;
     setSelectedFolder: React.Dispatch<React.SetStateAction<null | SelectedFolder>>;
     setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function Settings({
-    sessionType,
-    setSessionType,
-    fixedTime,
-    setFixedTime,
-    selectedFolder,
-    setSelectedFolder,
-    setImageFiles,
-    setRunApp,
-}: SettingsProps) {
+export default function Settings({ selectedFolder, setSelectedFolder, setImageFiles, setRunApp }: SettingsProps) {
+    const { preferences, updatePreferences } = usePreferences();
+    const updateFixedTime = preferenceUpdater("fixedTime", updatePreferences);
+    const updateSessionType = preferenceUpdater("sessionType", updatePreferences);
+
     const handleFolderSelect = async () => {
         // Check if the API is supported
         if (!("showDirectoryPicker" in window)) {
@@ -101,8 +93,8 @@ export default function Settings({
                             <ToggleButton
                                 key={type}
                                 label={type}
-                                isSelected={sessionType === type}
-                                setter={setSessionType}
+                                isSelected={preferences.sessionType === type}
+                                onClick={() => updateSessionType(type)}
                             />
                         ))}
                     </div>
@@ -115,8 +107,8 @@ export default function Settings({
                             <ToggleButton
                                 key={time}
                                 label={time}
-                                isSelected={fixedTime === time}
-                                setter={setFixedTime}
+                                isSelected={preferences.fixedTime === time}
+                                onClick={() => updateFixedTime(time)}
                             />
                         ))}
                     </div>

@@ -16,36 +16,33 @@ import {
 } from "@heroicons/react/24/outline";
 import { BoltIcon } from "@heroicons/react/24/solid";
 
-import type { SelectedFolder } from "../types/folder";
-import { FixedTime, fixedTimeToMS } from "../types/session";
+import type { SelectedFolder } from "../types/preferences";
+import { fixedTimeToMS } from "../types/session";
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
 import { timerAlerts } from "../utils/alerts";
 import { useToggle } from "../utils/hooks";
 import { GridIcon } from "../assets/icons";
 
+import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
+
 const INTERVAL_MS = 10;
 
 interface PracticeProps {
-    fixedTime: FixedTime;
     selectedFolder: SelectedFolder;
     imageFiles: File[];
     setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function Practice({ fixedTime, selectedFolder, imageFiles, setImageFiles, setRunApp }: PracticeProps) {
+export default function Practice({ selectedFolder, imageFiles, setImageFiles, setRunApp }: PracticeProps) {
+    const { preferences } = usePreferences();
     const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
     const [orderIndex, setOrderIndex] = useState(0);
     const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
     const [showOverlay, toggleShowOverlay] = useToggle(false);
     const [pause, togglePause] = useToggle(false);
-    const [mute, toggleMute] = useToggle(false);
-    const [grid, toggleGrid] = useToggle(false);
-    const [flip, toggleFlip] = useToggle(false);
-    const [greyscale, toggleGreyscale] = useToggle(false);
-    const [timer, toggleTimer] = useToggle(false);
     const [counter, setCounter] = useState(0);
-    const timeMS = fixedTimeToMS(fixedTime);
+    const timeMS = fixedTimeToMS(preferences.fixedTime);
     const TICKS_PER_SLIDE = timeMS / INTERVAL_MS;
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
@@ -138,7 +135,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
                     const remainingTicks = TICKS_PER_SLIDE - prev;
                     const remainingSeconds = (remainingTicks * INTERVAL_MS) / 1000;
                     // Play sounds at specific remaining times if not muted
-                    if (!mute) {
+                    if (!preferences.mute) {
                         if (remainingSeconds <= 3.01 && remainingSeconds > 2.99) {
                             timerAlerts.threeSec();
                         } else if (remainingSeconds <= 2.01 && remainingSeconds > 1.99) {
@@ -177,7 +174,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
             if (timer) clearInterval(timer);
             window.removeEventListener("keydown", handleKeyPress);
         };
-    }, [orderIndex, pause, mute]);
+    }, [orderIndex, pause, preferences.mute]);
 
     useEffect(() => {
         // Set up resize handler
@@ -201,23 +198,19 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
             <img
                 src={currentImageUrl}
                 alt={`Image ${imageOrder[orderIndex] + 1}`}
-                className={`w-full h-full object-contain ${flip ? "scale-x-[-1]" : ""} ${greyscale ? "grayscale" : ""}`}
+                className={`w-full h-full object-contain ${preferences.flip ? "scale-x-[-1]" : ""} ${
+                    preferences.greyscale ? "grayscale" : ""
+                }`}
             />
-            {grid && <ImageGrid />}
-            {timer && <ProgressBar fraction={counter / TICKS_PER_SLIDE} />}
+            {preferences.grid && <ImageGrid />}
+            {preferences.timer && <ProgressBar fraction={counter / TICKS_PER_SLIDE} />}
             {showOverlay && (
                 <ButtonOverlay
                     orderIndex={orderIndex}
                     imageOrder={imageOrder}
                     imageFiles={imageFiles}
                     pause={pause}
-                    mute={mute}
                     togglePause={togglePause}
-                    toggleMute={toggleMute}
-                    toggleGrid={toggleGrid}
-                    toggleFlip={toggleFlip}
-                    toggleGreyscale={toggleGreyscale}
-                    toggleTimer={toggleTimer}
                     setRunApp={setRunApp}
                     next={() => next()}
                     prev={() => prev()}
@@ -233,13 +226,7 @@ interface ButtonOverlayProps {
     imageOrder: number[];
     imageFiles: File[];
     pause: boolean;
-    mute: boolean;
     togglePause: () => void;
-    toggleMute: () => void;
-    toggleGrid: () => void;
-    toggleFlip: () => void;
-    toggleGreyscale: () => void;
-    toggleTimer: () => void;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     next: () => void;
     prev: () => void;
@@ -250,18 +237,19 @@ function ButtonOverlay({
     imageOrder,
     imageFiles,
     pause,
-    mute,
     togglePause,
-    toggleMute,
-    toggleGrid,
-    toggleFlip,
-    toggleGreyscale,
-    toggleTimer,
     setRunApp,
     next,
     prev,
     deleteCurrentFile,
 }: ButtonOverlayProps) {
+    const { preferences, updatePreferences } = usePreferences();
+    const updateMute = preferenceUpdater("mute", updatePreferences);
+    const updateGrid = preferenceUpdater("grid", updatePreferences);
+    const updateFlip = preferenceUpdater("flip", updatePreferences);
+    const updateGreyscale = preferenceUpdater("greyscale", updatePreferences);
+    const updateTimer = preferenceUpdater("timer", updatePreferences);
+
     // Alerts the user with information about the current image
     const showImageInfo = () => {
         const currentFile = imageFiles[imageOrder[orderIndex]];
@@ -296,12 +284,15 @@ function ButtonOverlay({
                             }
                         }}
                     />
-                    <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={toggleMute} />
+                    <SlideshowButton
+                        Icon={preferences.mute ? SpeakerXMarkIcon : SpeakerWaveIcon}
+                        onClick={() => updateMute(!preferences.mute)}
+                    />
                     <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
-                    <SlideshowButton Icon={GridIcon} onClick={toggleGrid} />
-                    <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={toggleFlip} />
-                    <SlideshowButton Icon={BoltIcon} onClick={toggleGreyscale} />
-                    <SlideshowButton Icon={ClockIcon} onClick={toggleTimer} />
+                    <SlideshowButton Icon={GridIcon} onClick={() => updateGrid(!preferences.grid)} />
+                    <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={() => updateFlip(!preferences.flip)} />
+                    <SlideshowButton Icon={BoltIcon} onClick={() => updateGreyscale(!preferences.greyscale)} />
+                    <SlideshowButton Icon={ClockIcon} onClick={() => updateTimer(!preferences.timer)} />
                 </div>
                 <div className="flex justify-center space-x-4">
                     <SlideshowButton Icon={ChevronLeftIcon} onClick={() => prev()} size={"xl"} />
