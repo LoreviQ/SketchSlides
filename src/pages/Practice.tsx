@@ -41,6 +41,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
     const [mute, toggleMute] = useToggle(false);
     const [pause, togglePause] = useToggle(false);
     const [greyscale, toggleGreyscale] = useToggle(false);
+    const [timer, toggleTimer] = useToggle(false);
     const [counter, setCounter] = useState(0);
     const timeMS = fixedTimeToMS(fixedTime);
     const TICKS_PER_SLIDE = timeMS / INTERVAL_MS;
@@ -198,7 +199,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
                 alt={`Image ${imageOrder[orderIndex] + 1}`}
                 className={`w-full h-full object-contain ${flip ? "scale-x-[-1]" : ""} ${greyscale ? "grayscale" : ""}`}
             />
-            <ProgressBar fraction={counter / TICKS_PER_SLIDE} />
+            {timer && <ProgressBar fraction={counter / TICKS_PER_SLIDE} />}
             {showOverlay && (
                 <ButtonOverlay
                     orderIndex={orderIndex}
@@ -210,6 +211,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
                     toggleMute={toggleMute}
                     toggleFlip={toggleFlip}
                     toggleGreyscale={toggleGreyscale}
+                    toggleTimer={toggleTimer}
                     setRunApp={setRunApp}
                     next={() => next()}
                     prev={() => prev()}
@@ -230,6 +232,7 @@ interface ButtonOverlayProps {
     toggleMute: () => void;
     toggleFlip: () => void;
     toggleGreyscale: () => void;
+    toggleTimer: () => void;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     next: () => void;
     prev: () => void;
@@ -245,6 +248,7 @@ function ButtonOverlay({
     toggleMute,
     toggleFlip,
     toggleGreyscale,
+    toggleTimer,
     setRunApp,
     next,
     prev,
@@ -287,7 +291,7 @@ function ButtonOverlay({
                     <SlideshowButton Icon={Squares2X2Icon} onClick={() => console.log("Grid button clicked")} />
                     <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={toggleFlip} />
                     <SlideshowButton Icon={BoltIcon} onClick={toggleGreyscale} />
-                    <SlideshowButton Icon={ClockIcon} onClick={() => console.log("Timer button clicked")} />
+                    <SlideshowButton Icon={ClockIcon} onClick={toggleTimer} />
                 </div>
                 <div className="flex justify-center space-x-4">
                     <SlideshowButton Icon={ChevronLeftIcon} onClick={() => prev()} size={"xl"} />
