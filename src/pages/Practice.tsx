@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 import {
-    XCircleIcon,
+    XMarkIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
     PauseIcon,
@@ -40,6 +40,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
     const [flip, toggleFlip] = useToggle(false);
     const [mute, toggleMute] = useToggle(false);
     const [pause, togglePause] = useToggle(false);
+    const [greyscale, toggleGreyscale] = useToggle(false);
     const [counter, setCounter] = useState(0);
     const timeMS = fixedTimeToMS(fixedTime);
     const TICKS_PER_SLIDE = timeMS / INTERVAL_MS;
@@ -195,7 +196,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
             <img
                 src={currentImageUrl}
                 alt={`Image ${imageOrder[orderIndex] + 1}`}
-                className={`w-full h-full object-contain ${flip ? "scale-x-[-1]" : ""}`}
+                className={`w-full h-full object-contain ${flip ? "scale-x-[-1]" : ""} ${greyscale ? "grayscale" : ""}`}
             />
             <ProgressBar fraction={counter / TICKS_PER_SLIDE} />
             {showOverlay && (
@@ -208,6 +209,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
                     togglePause={togglePause}
                     toggleMute={toggleMute}
                     toggleFlip={toggleFlip}
+                    toggleGreyscale={toggleGreyscale}
                     setRunApp={setRunApp}
                     next={() => next()}
                     prev={() => prev()}
@@ -227,6 +229,7 @@ interface ButtonOverlayProps {
     togglePause: () => void;
     toggleMute: () => void;
     toggleFlip: () => void;
+    toggleGreyscale: () => void;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     next: () => void;
     prev: () => void;
@@ -241,6 +244,7 @@ function ButtonOverlay({
     togglePause,
     toggleMute,
     toggleFlip,
+    toggleGreyscale,
     setRunApp,
     next,
     prev,
@@ -269,7 +273,7 @@ function ButtonOverlay({
         <div className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center">
             <div className="flex flex-col-reverse w-full h-full p-4">
                 <div className="flex justify-center space-x-4 pt-12 pb-2">
-                    <SlideshowButton Icon={XCircleIcon} onClick={() => setRunApp(false)} />
+                    <SlideshowButton Icon={XMarkIcon} onClick={() => setRunApp(false)} />
                     <SlideshowButton Icon={InformationCircleIcon} onClick={showImageInfo} />
                     <SlideshowButton
                         Icon={TrashIcon}
@@ -282,7 +286,7 @@ function ButtonOverlay({
                     <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
                     <SlideshowButton Icon={Squares2X2Icon} onClick={() => console.log("Grid button clicked")} />
                     <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={toggleFlip} />
-                    <SlideshowButton Icon={BoltIcon} onClick={() => console.log("Greyscale button clicked")} />
+                    <SlideshowButton Icon={BoltIcon} onClick={toggleGreyscale} />
                     <SlideshowButton Icon={ClockIcon} onClick={() => console.log("Timer button clicked")} />
                 </div>
                 <div className="flex justify-center space-x-4">
