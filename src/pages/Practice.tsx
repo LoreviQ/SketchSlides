@@ -4,6 +4,9 @@ import { XCircleIcon, ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } f
 
 import { FixedTime, fixedTimeToMS } from "../types/session";
 import { SlideshowButton } from "../components/buttons";
+import { ProgressBar } from "../components/progressBars";
+
+const INTERVAL_MS = 10;
 
 interface PracticeProps {
     fixedTime: FixedTime;
@@ -18,13 +21,12 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     const [pause, setPause] = useState(false);
     const [counter, setCounter] = useState(0);
     const timeMS = fixedTimeToMS(fixedTime);
-    const TICKS_PER_SLIDE = timeMS / 100;
+    const TICKS_PER_SLIDE = timeMS / INTERVAL_MS;
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
 
     const maxWidthRef = useRef<number>(window.innerWidth);
     const maxHeightRef = useRef<number>(window.innerHeight);
-    console.log(counter);
 
     // Resize the window to fit the image if standalone
     useEffect(() => {
@@ -51,7 +53,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
                     }
                     return prev + 1;
                 });
-            }, 100);
+            }, INTERVAL_MS);
         }
 
         // Keypresses
@@ -103,6 +105,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
                 alt={`Image ${imageOrder[orderIndex] + 1}`}
                 className="w-full h-full object-contain"
             />
+            <ProgressBar fraction={counter / TICKS_PER_SLIDE} />
             {showOverlay && (
                 <ButtonOverlay
                     setRunApp={setRunApp}
