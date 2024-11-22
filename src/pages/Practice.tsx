@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { XCircleIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { XCircleIcon, ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@heroicons/react/24/outline";
 
 import { FixedTime, fixedTimeToMS } from "../types/session";
 import { SlideshowButton } from "../components/buttons";
@@ -111,7 +111,8 @@ function ButtonOverlay({
                     <SlideshowButton Icon={XCircleIcon} onClick={() => setRunApp(false)} />
                 </div>
                 <div className="flex justify-center space-x-4">
-                    <SlideshowButton Icon={ChevronLeftIcon} onClick={() => console.log("Button 2 clicked")} />
+                    <SlideshowButton Icon={ChevronLeftIcon} onClick={() => console.log("Button 1 clicked")} />
+                    <SlideshowButton Icon={PauseIcon} onClick={() => console.log("Button 2 clicked")} />
                     <SlideshowButton
                         Icon={ChevronRightIcon}
                         onClick={() => setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, length)}
