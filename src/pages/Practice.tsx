@@ -10,7 +10,8 @@ interface PracticeProps {
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeProps) {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [imageOrder, setImageOrder] = useState<number[]>(generateRandomOrder(imageFiles.length));
+    const [orderIndex, setOrderIndex] = useState(imageOrder[0]);
     const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
     const [showOverlay, setShowOverlay] = useState(false);
     const timeMS = fixedTimeToMS(fixedTime);
@@ -23,7 +24,14 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     // Update the current image index based on an interval of timeMS
     useEffect(() => {
         const timer = setInterval(() => {
-            setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imageFiles.length);
+            setOrderIndex((prevIndex) => {
+                const currentPosition = imageOrder.indexOf(prevIndex);
+                const nextPosition = (currentPosition + 1) % imageFiles.length;
+                if (nextPosition === 0) {
+                    setImageOrder(generateRandomOrder(imageFiles.length));
+                }
+                return imageOrder[nextPosition];
+            });
         }, timeMS);
 
         return () => clearInterval(timer);
@@ -31,7 +39,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
 
     // Update the current image URL based on the current image index
     useEffect(() => {
-        const currentFile = imageFiles[currentImageIndex];
+        const currentFile = imageFiles[orderIndex];
         if (currentFile) {
             const url = URL.createObjectURL(currentFile);
             setCurrentImageUrl(url);
@@ -42,7 +50,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
             // Clean up the previous URL
             return () => URL.revokeObjectURL(url);
         }
-    }, [imageFiles, currentImageIndex]);
+    }, [imageFiles, orderIndex]);
 
     // Listen for window resize events and update maxWidth and maxHeight accordingly
     useEffect(() => {
@@ -68,7 +76,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
                 <>
                     <img
                         src={currentImageUrl}
-                        alt={`Image ${currentImageIndex + 1}`}
+                        alt={`Image ${orderIndex + 1}`}
                         className="max-w-full max-h-full object-contain"
                     />
                     {showOverlay && <ButtonOverlay setRunApp={setRunApp} />}
@@ -140,4 +148,13 @@ function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
         window.resizeTo(adjustedWidth, adjustedHeight);
         window.moveTo(newLeft, newTop);
     };
+}
+
+function generateRandomOrder(length: number): number[] {
+    const order = Array.from({ length }, (_, i) => i);
+    for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+    }
+    return order;
 }
