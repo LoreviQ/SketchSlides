@@ -21,6 +21,7 @@ import { FixedTime, fixedTimeToMS } from "../types/session";
 import { SlideshowButton } from "../components/buttons";
 import { ProgressBar } from "../components/progressBars";
 import { timerAlerts } from "../utils/alerts";
+import { useToggle } from "../utils/hooks";
 
 const INTERVAL_MS = 10;
 
@@ -35,9 +36,10 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
     const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
     const [orderIndex, setOrderIndex] = useState(0);
     const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
-    const [showOverlay, setShowOverlay] = useState(false);
-    const [pause, setPause] = useState(false);
-    const [mute, setMute] = useState(false);
+    const [showOverlay, toggleShowOverlay] = useToggle(false);
+    const [flip, toggleFlip] = useToggle(false);
+    const [mute, toggleMute] = useToggle(false);
+    const [pause, togglePause] = useToggle(false);
     const [counter, setCounter] = useState(0);
     const timeMS = fixedTimeToMS(fixedTime);
     const TICKS_PER_SLIDE = timeMS / INTERVAL_MS;
@@ -157,7 +159,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
                 prev();
             }
             if (event.key === " ") {
-                setPause(!pause);
+                togglePause();
             }
         };
 
@@ -187,13 +189,13 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
 
     return (
         <div
-            onClick={() => setShowOverlay(!showOverlay)}
+            onClick={toggleShowOverlay}
             className="flex justify-center items-center h-screen bg-black overflow-hidden relative"
         >
             <img
                 src={currentImageUrl}
                 alt={`Image ${imageOrder[orderIndex] + 1}`}
-                className="w-full h-full object-contain"
+                className={`w-full h-full object-contain ${flip ? "scale-x-[-1]" : ""}`}
             />
             <ProgressBar fraction={counter / TICKS_PER_SLIDE} />
             {showOverlay && (
@@ -203,8 +205,8 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
                     imageFiles={imageFiles}
                     pause={pause}
                     mute={mute}
-                    setPause={setPause}
-                    setMute={setMute}
+                    togglePause={togglePause}
+                    toggleMute={toggleMute}
                     setRunApp={setRunApp}
                     next={() => next()}
                     prev={() => prev()}
@@ -221,8 +223,8 @@ interface ButtonOverlayProps {
     imageFiles: File[];
     pause: boolean;
     mute: boolean;
-    setPause: React.Dispatch<React.SetStateAction<boolean>>;
-    setMute: React.Dispatch<React.SetStateAction<boolean>>;
+    togglePause: () => void;
+    toggleMute: () => void;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     next: () => void;
     prev: () => void;
@@ -234,8 +236,8 @@ function ButtonOverlay({
     imageFiles,
     pause,
     mute,
-    setPause,
-    setMute,
+    togglePause,
+    toggleMute,
     setRunApp,
     next,
     prev,
@@ -273,7 +275,7 @@ function ButtonOverlay({
                             next();
                         }}
                     />
-                    <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={() => setMute(!mute)} />
+                    <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={toggleMute} />
                     <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
                     <SlideshowButton Icon={Squares2X2Icon} onClick={() => console.log("Grid button clicked")} />
                     <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={() => console.log("Flip button clicked")} />
@@ -282,7 +284,7 @@ function ButtonOverlay({
                 </div>
                 <div className="flex justify-center space-x-4">
                     <SlideshowButton Icon={ChevronLeftIcon} onClick={() => prev()} size={"xl"} />
-                    <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={() => setPause(!pause)} size={"xl"} />
+                    <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={togglePause} size={"xl"} />
                     <SlideshowButton Icon={ChevronRightIcon} onClick={() => next()} size={"xl"} />
                 </div>
             </div>
