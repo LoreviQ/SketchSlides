@@ -15,6 +15,7 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     const [orderIndex, setOrderIndex] = useState(0);
     const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
     const [showOverlay, setShowOverlay] = useState(false);
+    const [pause, setPause] = useState(false);
     const timeMS = fixedTimeToMS(fixedTime);
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
@@ -93,6 +94,8 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
                     imageOrder={imageOrder}
                     setImageOrder={setImageOrder}
                     length={imageFiles.length}
+                    pause={pause}
+                    setPause={setPause}
                 />
             )}
         </div>
@@ -106,6 +109,8 @@ interface ButtonOverlayProps {
     imageOrder: number[];
     setImageOrder: React.Dispatch<React.SetStateAction<number[]>>;
     length: number;
+    pause: boolean;
+    setPause: React.Dispatch<React.SetStateAction<boolean>>;
 }
 function ButtonOverlay({
     setRunApp,
@@ -114,6 +119,8 @@ function ButtonOverlay({
     imageOrder,
     setImageOrder,
     length,
+    pause,
+    setPause,
 }: ButtonOverlayProps) {
     return (
         <div className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center">
@@ -123,7 +130,7 @@ function ButtonOverlay({
                 </div>
                 <div className="flex justify-center space-x-4">
                     <SlideshowButton Icon={ChevronLeftIcon} onClick={() => setPrevIndex(orderIndex, setOrderIndex)} />
-                    <SlideshowButton Icon={PauseIcon} onClick={() => console.log("Button 2 clicked")} />
+                    <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={() => setPause(!pause)} />
                     <SlideshowButton
                         Icon={ChevronRightIcon}
                         onClick={() => setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, length)}
