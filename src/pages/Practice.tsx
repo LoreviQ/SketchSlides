@@ -22,15 +22,6 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     const maxWidthRef = useRef<number>(window.innerWidth);
     const maxHeightRef = useRef<number>(window.innerHeight);
 
-    // Update the current image index based on an interval of timeMS
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
-        }, timeMS);
-
-        return () => clearInterval(timer);
-    }, []);
-
     // Update the current image URL based on the current image index
     useEffect(() => {
         const currentFile = imageFiles[orderIndex];
@@ -49,18 +40,34 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         }
     }, [currentImageUrl, isStandalone]);
 
-    // Listen for window resize events and update maxWidth and maxHeight accordingly
     useEffect(() => {
+        // Set up interval timer
+        const timer = setInterval(() => {
+            setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
+        }, timeMS);
+
+        // Set up resize handler
         const handleResize = () => {
             maxWidthRef.current = window.innerWidth;
             maxHeightRef.current = window.innerHeight;
         };
 
-        window.addEventListener("resize", handleResize);
+        // Set up keypress handler
+        const handleKeyPress = (event: KeyboardEvent) => {
+            if (event.key === "ArrowRight") {
+                setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, imageFiles.length);
+            }
+        };
 
-        // Clean up the event listener when the component unmounts
+        // Add event listeners
+        window.addEventListener("resize", handleResize);
+        window.addEventListener("keydown", handleKeyPress);
+
+        // Cleanup function
         return () => {
+            clearInterval(timer);
             window.removeEventListener("resize", handleResize);
+            window.removeEventListener("keydown", handleKeyPress);
         };
     }, []);
 
