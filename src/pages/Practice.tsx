@@ -34,11 +34,26 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
 
     // Resize the window to fit the image if standalone
     useEffect(() => {
-        console.log(isStandalone);
         if (isStandalone) {
             resizeWindow(currentImageUrl, maxWidthRef.current, maxHeightRef.current);
         }
     }, [currentImageUrl, isStandalone]);
+
+    // Keypress listener
+    useEffect(() => {
+        const handleKeyPress = (event: KeyboardEvent) => {
+            if (event.key === "ArrowRight") {
+                setNextIndex(fileIndex, setFileIndex, imageOrder, setImageOrder, imageFiles.length);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyPress);
+
+        // Cleanup function
+        return () => {
+            window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [fileIndex, imageOrder]);
 
     // Setup and teardown
     useEffect(() => {
@@ -53,22 +68,13 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
             maxHeightRef.current = window.innerHeight;
         };
 
-        // Set up keypress handler
-        const handleKeyPress = (event: KeyboardEvent) => {
-            if (event.key === "ArrowRight") {
-                setNextIndex(fileIndex, setFileIndex, imageOrder, setImageOrder, imageFiles.length);
-            }
-        };
-
         // Add event listeners
         window.addEventListener("resize", handleResize);
-        window.addEventListener("keydown", handleKeyPress);
 
         // Cleanup function
         return () => {
             clearInterval(timer);
             window.removeEventListener("resize", handleResize);
-            window.removeEventListener("keydown", handleKeyPress);
         };
     }, []);
 
