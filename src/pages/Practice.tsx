@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { FixedTime, fixedTimeToMS } from "../types/session";
 
@@ -14,6 +14,11 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
     const [showOverlay, setShowOverlay] = useState(false);
     const timeMS = fixedTimeToMS(fixedTime);
+    const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+
+    const maxWidthRef = useRef<number>(window.innerWidth);
+    const maxHeightRef = useRef<number>(window.innerHeight);
 
     // Update the current image index based on an interval of timeMS
     useEffect(() => {
@@ -30,11 +35,29 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         if (currentFile) {
             const url = URL.createObjectURL(currentFile);
             setCurrentImageUrl(url);
-
+            // Resize the window to fit the image if standalone
+            if (isStandalone) {
+                resizeWindow(url, maxWidthRef.current, maxHeightRef.current);
+            }
             // Clean up the previous URL
             return () => URL.revokeObjectURL(url);
         }
     }, [imageFiles, currentImageIndex]);
+
+    // Listen for window resize events and update maxWidth and maxHeight accordingly
+    useEffect(() => {
+        const handleResize = () => {
+            maxWidthRef.current = window.innerWidth;
+            maxHeightRef.current = window.innerHeight;
+        };
+
+        window.addEventListener("resize", handleResize);
+
+        // Clean up the event listener when the component unmounts
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
 
     return (
         <div
@@ -84,4 +107,30 @@ function ButtonOverlay({ setRunApp }: ButtonOverlayProps) {
             </div>
         </div>
     );
+}
+
+function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
+    const img = new Image();
+    img.src = url;
+    img.onload = () => {
+        const { width, height } = img;
+
+        // Calculate scale factor based on the window size and the image dimensions
+        const scaleWidth = maxWidth / width;
+        const scaleHeight = maxHeight / height;
+        const scaleFactor = Math.min(scaleWidth, scaleHeight);
+
+        // Calculate the new dimensions based on the scale factor
+        const newWidth = width * scaleFactor;
+        const newHeight = height * scaleFactor;
+
+        // Adjust the resize target to account for the browser UI space
+        const browserUIWidth = window.outerWidth - window.innerWidth;
+        const browserUIHeight = window.outerHeight - window.innerHeight;
+        const adjustedWidth = newWidth + browserUIWidth;
+        const adjustedHeight = newHeight + browserUIHeight;
+
+        // Resize the window to fit the image
+        window.resizeTo(adjustedWidth, adjustedHeight);
+    };
 }
