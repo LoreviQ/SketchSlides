@@ -120,7 +120,13 @@ export default function Settings({
                 </div>
                 <button
                     className="w-full py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
-                    onClick={() => setRunApp(true)}
+                    onClick={() => {
+                        if (!selectedFolder) {
+                            alert("Please select a folder first");
+                        } else {
+                            setRunApp(true);
+                        }
+                    }}
                 >
                     Start
                 </button>
