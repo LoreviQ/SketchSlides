@@ -76,13 +76,13 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
         setCounter(0);
     };
 
-    const deleteCurrentFile = async () => {
+    const deleteCurrentFile = async (): Promise<boolean> => {
         const currentFile = imageFiles[imageOrder[orderIndex]];
         const deletedValue = imageOrder[orderIndex];
 
         // Show confirmation dialog
         const confirmDelete = window.confirm(`Are you sure you want to delete:\n${currentFile.name}?`);
-        if (!confirmDelete) return;
+        if (!confirmDelete) return false;
 
         try {
             // Get file handle from the directory handle
@@ -96,7 +96,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
             if (newImageFiles.length === 0) {
                 alert("No more images in folder. Returning to settings.");
                 setRunApp(false);
-                return;
+                return true;
             }
 
             // Update image order: remove all instances of deletedValue and decrement higher values
@@ -108,9 +108,11 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
             setImageOrder(newOrder);
             setImageFiles(newImageFiles);
             setOrderIndex(orderIndex - removedBeforeCurrent);
+            return true;
         } catch (error) {
             console.error("Error deleting file:", error);
             alert("Failed to delete file. Make sure you have permission to modify files in this folder.");
+            return false;
         }
     };
 
@@ -241,7 +243,7 @@ interface ButtonOverlayProps {
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     next: () => void;
     prev: () => void;
-    deleteCurrentFile: () => void;
+    deleteCurrentFile: () => Promise<boolean>;
 }
 function ButtonOverlay({
     orderIndex,
@@ -287,9 +289,11 @@ function ButtonOverlay({
                     <SlideshowButton Icon={InformationCircleIcon} onClick={showImageInfo} />
                     <SlideshowButton
                         Icon={TrashIcon}
-                        onClick={() => {
-                            deleteCurrentFile();
-                            next();
+                        onClick={async () => {
+                            const success = await deleteCurrentFile();
+                            if (success) {
+                                next();
+                            }
                         }}
                     />
                     <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={toggleMute} />
