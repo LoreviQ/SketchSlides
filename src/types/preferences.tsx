@@ -11,9 +11,6 @@ export type UserPreferences = {
     // Session settings
     sessionType: SessionType;
     fixedTime: FixedTime;
-    lastFolderHandle?: {
-        name: string;
-    };
 
     // Practice mode preferences
     mute: boolean;

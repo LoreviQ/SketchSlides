@@ -1,9 +1,11 @@
-import { SessionType, FixedTime } from "../types/session";
-import { ToggleButton } from "../components/buttons";
-import { formatFileSize } from "../utils/formatters";
+import { useEffect } from "react";
 
 import type { SelectedFolder } from "../types/preferences";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
+import { SessionType, FixedTime } from "../types/session";
+import { ToggleButton } from "../components/buttons";
+import { formatFileSize } from "../utils/formatters";
+import { saveLastFolder, getLastFolder } from "../utils/indexDB";
 
 interface SettingsProps {
     selectedFolder: null | SelectedFolder;
@@ -51,8 +53,8 @@ export default function Settings({ selectedFolder, setSelectedFolder, setImageFi
                 totalSize: totalSize,
                 dirHandle: dirHandle,
             });
-
             setImageFiles(files);
+            await saveLastFolder(dirHandle);
         } catch (err) {
             console.error("Error selecting folder:", err);
             if (err instanceof Error && err.name !== "AbortError") {
@@ -60,6 +62,52 @@ export default function Settings({ selectedFolder, setSelectedFolder, setImageFi
             }
         }
     };
+
+    // Try to restore the last folder on component mount
+    useEffect(() => {
+        const restoreLastFolder = async () => {
+            try {
+                // Retrieve handle from IndexedDB
+                const handle = await getLastFolder();
+                if (!handle) {
+                    console.log("No saved handle found");
+                    return;
+                }
+
+                // Re-scan the folder
+                const files: File[] = [];
+                for await (const entry of handle.values()) {
+                    if (entry.kind === "file") {
+                        const fileHandle = entry as FileSystemFileHandle;
+                        const file = await fileHandle.getFile();
+                        if (file.type.startsWith("image/")) {
+                            files.push(file);
+                        }
+                    }
+                }
+
+                if (files.length === 0) {
+                    console.log("No images found in last used folder");
+                    return;
+                }
+
+                const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+
+                setSelectedFolder({
+                    name: handle.name,
+                    items: files.length,
+                    totalSize: totalSize,
+                    dirHandle: handle,
+                });
+
+                setImageFiles(files);
+            } catch (err) {
+                console.log("Could not restore last folder:", err);
+            }
+        };
+
+        restoreLastFolder();
+    }, []);
 
     return (
         <div className="w-full max-w-2xl p-6 space-y-6">
