@@ -104,10 +104,7 @@ function ButtonOverlay({
     length,
 }: ButtonOverlayProps) {
     return (
-        <div
-            className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center"
-            onClick={(e) => e.stopPropagation()}
-        >
+        <div className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center">
             <div className="flex flex-col w-full h-full justify-between p-4">
                 <div className="flex justify-left">
                     <SlideshowButton setter={setRunApp} />
@@ -115,13 +112,19 @@ function ButtonOverlay({
                 <div className="flex justify-between">
                     <button
                         className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                        onClick={() => console.log("Button 2 clicked")}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            console.log("Button 2 clicked");
+                        }}
                     >
                         Button 2
                     </button>
                     <button
                         className="bg-red-500 text-white px-4 py-2 rounded-md"
-                        onClick={() => setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, length)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setNextIndex(orderIndex, setOrderIndex, imageOrder, setImageOrder, length);
+                        }}
                     >
                         Button 3
                     </button>

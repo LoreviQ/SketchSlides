@@ -30,7 +30,13 @@ interface SlideshowButtonnProps {
 }
 export function SlideshowButton({ setter }: SlideshowButtonnProps) {
     return (
-        <button className="bg-black/50 text-white rounded-full p-2 hover:bg-gray-700" onClick={() => setter(false)}>
+        <button
+            className="bg-black/50 text-white rounded-full p-2 hover:bg-gray-700"
+            onClick={(e) => {
+                e.stopPropagation();
+                setter(false);
+            }}
+        >
             <XCircleIcon className="size-6 text-white" />
         </button>
     );
