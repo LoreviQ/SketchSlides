@@ -22,6 +22,7 @@ import { SlideshowButton } from "../components/buttons";
 import { ProgressBar } from "../components/progressBars";
 import { timerAlerts } from "../utils/alerts";
 import { useToggle } from "../utils/hooks";
+import { GridIcon } from "../assets/icons";
 
 const INTERVAL_MS = 10;
 
@@ -288,7 +289,7 @@ function ButtonOverlay({
                     />
                     <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={toggleMute} />
                     <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
-                    <SlideshowButton Icon={Squares2X2Icon} onClick={() => console.log("Grid button clicked")} />
+                    <SlideshowButton Icon={GridIcon} onClick={() => console.log("Grid button clicked")} />
                     <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={toggleFlip} />
                     <SlideshowButton Icon={BoltIcon} onClick={toggleGreyscale} />
                     <SlideshowButton Icon={ClockIcon} onClick={toggleTimer} />
