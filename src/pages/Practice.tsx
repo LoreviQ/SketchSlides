@@ -7,7 +7,6 @@ import {
     PauseIcon,
     PlayIcon,
     InformationCircleIcon,
-    FolderIcon,
     TrashIcon,
     SpeakerWaveIcon,
     SpeakerXMarkIcon,
@@ -185,6 +184,7 @@ function ButtonOverlay({
     next,
     prev,
 }: ButtonOverlayProps) {
+    // Alerts the user with information about the current image
     const showImageInfo = () => {
         const currentFile = imageFiles[imageOrder[orderIndex]];
         const img = document.querySelector("img"); // Use the existing image element
@@ -209,7 +209,6 @@ function ButtonOverlay({
                 <div className="flex justify-center space-x-4 pt-12 pb-2">
                     <SlideshowButton Icon={XCircleIcon} onClick={() => setRunApp(false)} />
                     <SlideshowButton Icon={InformationCircleIcon} onClick={showImageInfo} />
-                    <SlideshowButton Icon={FolderIcon} onClick={() => console.log("Folder button clicked")} />
                     <SlideshowButton Icon={TrashIcon} onClick={() => console.log("Trash button clicked")} />
                     <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={() => setMute(!mute)} />
                     <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />

@@ -2,13 +2,15 @@ import { SessionType, FixedTime } from "../types/session";
 import { ToggleButton } from "../components/buttons";
 import { formatFileSize } from "../utils/formatters";
 
+import type { SelectedFolder } from "../types/folder";
+
 interface SettingsProps {
     sessionType: SessionType;
     setSessionType: React.Dispatch<React.SetStateAction<SessionType>>;
     fixedTime: FixedTime;
     setFixedTime: React.Dispatch<React.SetStateAction<FixedTime>>;
-    selectedFolder: null | { name: string; items: number; totalSize: number };
-    setSelectedFolder: React.Dispatch<React.SetStateAction<null | { name: string; items: number; totalSize: number }>>;
+    selectedFolder: null | SelectedFolder;
+    setSelectedFolder: React.Dispatch<React.SetStateAction<null | SelectedFolder>>;
     setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -55,6 +57,7 @@ export default function Settings({
                 name: dirHandle.name,
                 items: files.length,
                 totalSize: totalSize,
+                dirHandle: dirHandle,
             });
 
             setImageFiles(files);
