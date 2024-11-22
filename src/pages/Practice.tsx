@@ -207,6 +207,7 @@ export default function Practice({ fixedTime, selectedFolder, imageFiles, setIma
                     mute={mute}
                     togglePause={togglePause}
                     toggleMute={toggleMute}
+                    toggleFlip={toggleFlip}
                     setRunApp={setRunApp}
                     next={() => next()}
                     prev={() => prev()}
@@ -225,6 +226,7 @@ interface ButtonOverlayProps {
     mute: boolean;
     togglePause: () => void;
     toggleMute: () => void;
+    toggleFlip: () => void;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     next: () => void;
     prev: () => void;
@@ -238,6 +240,7 @@ function ButtonOverlay({
     mute,
     togglePause,
     toggleMute,
+    toggleFlip,
     setRunApp,
     next,
     prev,
@@ -278,7 +281,7 @@ function ButtonOverlay({
                     <SlideshowButton Icon={mute ? SpeakerXMarkIcon : SpeakerWaveIcon} onClick={toggleMute} />
                     <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
                     <SlideshowButton Icon={Squares2X2Icon} onClick={() => console.log("Grid button clicked")} />
-                    <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={() => console.log("Flip button clicked")} />
+                    <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={toggleFlip} />
                     <SlideshowButton Icon={BoltIcon} onClick={() => console.log("Greyscale button clicked")} />
                     <SlideshowButton Icon={ClockIcon} onClick={() => console.log("Timer button clicked")} />
                 </div>
