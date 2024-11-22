@@ -43,14 +43,17 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
         if (currentFile) {
             const url = URL.createObjectURL(currentFile);
             setCurrentImageUrl(url);
-            // Resize the window to fit the image if standalone
-            if (isStandalone) {
-                resizeWindow(url, maxWidthRef.current, maxHeightRef.current);
-            }
-            // Clean up the previous URL
             return () => URL.revokeObjectURL(url);
         }
     }, [imageFiles, orderIndex]);
+
+    // Resize the window to fit the image if standalone
+    useEffect(() => {
+        console.log(isStandalone);
+        if (isStandalone) {
+            resizeWindow(currentImageUrl, maxWidthRef.current, maxHeightRef.current);
+        }
+    }, [currentImageUrl, isStandalone]);
 
     // Listen for window resize events and update maxWidth and maxHeight accordingly
     useEffect(() => {
@@ -72,18 +75,12 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
             onClick={() => setShowOverlay(!showOverlay)}
             className="flex justify-center items-center h-screen bg-black overflow-hidden relative"
         >
-            {currentImageUrl ? (
-                <>
-                    <img
-                        src={currentImageUrl}
-                        alt={`Image ${orderIndex + 1}`}
-                        className="max-w-full max-h-full object-contain"
-                    />
-                    {showOverlay && <ButtonOverlay setRunApp={setRunApp} />}
-                </>
-            ) : (
-                <p style={{ color: "#fff" }}>No images to display</p>
-            )}
+            <img
+                src={currentImageUrl}
+                alt={`Image ${orderIndex + 1}`}
+                className="max-w-full max-h-full object-contain"
+            />
+            {showOverlay && <ButtonOverlay setRunApp={setRunApp} />}
         </div>
     );
 }
