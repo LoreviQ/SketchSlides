@@ -1,6 +1,6 @@
-import { SessionType, FixedTime } from "./../types/session";
-import { ToggleButton } from "./../components/buttons";
-import { formatFileSize } from "./../utils/formatters";
+import { SessionType, FixedTime } from "../types/session";
+import { ToggleButton } from "../components/buttons";
+import { formatFileSize } from "../utils/formatters";
 
 interface SettingsProps {
     sessionType: SessionType;
@@ -12,7 +12,7 @@ interface SettingsProps {
     setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export function Settings({
+export default function Settings({
     sessionType,
     setSessionType,
     fixedTime,
