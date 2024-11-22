@@ -104,7 +104,10 @@ function ButtonOverlay({
     length,
 }: ButtonOverlayProps) {
     return (
-        <div className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center">
+        <div
+            className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center"
+            onClick={(e) => e.stopPropagation()}
+        >
             <div className="flex flex-col w-full h-full justify-between p-4">
                 <div className="flex justify-left">
                     <SlideshowButton setter={setRunApp} />
