@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
+
 import { FixedTime, fixedTimeToMS } from "../types/session";
+
+import ExitIcon from "../assets/exit.svg";
 
 interface PracticeProps {
     fixedTime: FixedTime;
@@ -33,25 +36,12 @@ export default function Practice({ fixedTime, imageFiles, setRunApp }: PracticeP
     }, [imageFiles, currentImageIndex]);
 
     return (
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100vh", // Full viewport height
-                backgroundColor: "#000", // Background color for better focus on images
-                overflow: "hidden", // Ensure no scrollbars appear
-            }}
-        >
+        <div className="flex justify-center items-center h-screen bg-black overflow-hidden">
             {currentImageUrl ? (
                 <img
                     src={currentImageUrl}
                     alt={`Image ${currentImageIndex + 1}`}
-                    style={{
-                        maxWidth: "100%",
-                        maxHeight: "100%",
-                        objectFit: "contain", // Ensures no cropping
-                    }}
+                    className="max-w-full max-h-full object-contain"
                 />
             ) : (
                 <p style={{ color: "#fff" }}>No images to display</p>

@@ -1,4 +1,5 @@
 import { SessionType, FixedTime } from "./../types/session";
+import ExitIcon from "../assets/exit.svg";
 
 interface ToggleButtonProps<T extends SessionType | FixedTime> {
     label: T;
@@ -20,6 +21,20 @@ export function ToggleButton<T extends SessionType | FixedTime>({
             onClick={() => setter(label)}
         >
             {label}
+        </button>
+    );
+}
+
+interface SlideshowButtonnProps {
+    setter: (value: boolean) => void;
+}
+export function SlideshowButton({ setter }: SlideshowButtonnProps) {
+    return (
+        <button
+            className="absolute top-4 left-4 bg-gray-800 text-white rounded-full p-2 hover:bg-gray-700"
+            onClick={() => setter(false)}
+        >
+            <ExitIcon className="w-6 h-6" />
         </button>
     );
 }
