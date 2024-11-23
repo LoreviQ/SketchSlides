@@ -125,37 +125,38 @@ export default function Settings({ selectedFolder, setSelectedFolder, setImageFi
                         ))}
                     </div>
                 </div>
-
-                <div className="space-y-4">
-                    <h2 className="text-xl font-semibold dark:text-white">Fixed Time</h2>
-                    <div className="flex gap-2">
-                        {Object.values(FixedTime).map((time) => {
-                            if (time === FixedTime.Other) {
+                {preferences.sessionType == SessionType.Practice && (
+                    <div className="space-y-4">
+                        <h2 className="text-xl font-semibold dark:text-white">Fixed Time</h2>
+                        <div className="flex gap-2">
+                            {Object.values(FixedTime).map((time) => {
+                                if (time === FixedTime.Other) {
+                                    return (
+                                        <InputButton
+                                            key={time}
+                                            value={preferences.customFixedTime ?? ""}
+                                            onClick={() => updateFixedTime(FixedTime.Other)}
+                                            onChange={(value) => {
+                                                updateFixedTime(FixedTime.Other);
+                                                updateCustomFixedTime(typeof value === "number" ? value : null);
+                                            }}
+                                            placeholder="Custom (s)"
+                                            isSelected={preferences.fixedTime === FixedTime.Other}
+                                        />
+                                    );
+                                }
                                 return (
-                                    <InputButton
+                                    <ToggleButton
                                         key={time}
-                                        value={preferences.customFixedTime ?? ""}
-                                        onClick={() => updateFixedTime(FixedTime.Other)}
-                                        onChange={(value) => {
-                                            updateFixedTime(FixedTime.Other);
-                                            updateCustomFixedTime(typeof value === "number" ? value : null);
-                                        }}
-                                        placeholder="Custom (s)"
-                                        isSelected={preferences.fixedTime === FixedTime.Other}
+                                        label={time}
+                                        isSelected={preferences.fixedTime === time}
+                                        onClick={() => updateFixedTime(time)}
                                     />
                                 );
-                            }
-                            return (
-                                <ToggleButton
-                                    key={time}
-                                    label={time}
-                                    isSelected={preferences.fixedTime === time}
-                                    onClick={() => updateFixedTime(time)}
-                                />
-                            );
-                        })}
+                            })}
+                        </div>
                     </div>
-                </div>
+                )}
                 <button
                     className="w-full py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
                     onClick={runApp}

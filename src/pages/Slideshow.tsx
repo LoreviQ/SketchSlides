@@ -17,6 +17,7 @@ import {
 import { BoltIcon } from "@heroicons/react/24/solid";
 
 import type { SelectedFolder } from "../types/preferences";
+import { SessionType } from "../types/session";
 import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
@@ -113,23 +114,10 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
         }
     };
 
-    // Resize the window to fit the image if standalone
-    useEffect(() => {
-        if (isStandalone) {
-            resizeWindow(currentImageUrl, maxWidthRef.current, maxHeightRef.current);
-        }
-    }, [currentImageUrl, isStandalone]);
-
-    useEffect(() => {
-        // Current image URL
-        const fileIndex = imageOrder[orderIndex];
-        const currentFile = imageFiles[fileIndex];
-        const url = URL.createObjectURL(currentFile);
-        setCurrentImageUrl(url);
-
-        // Interval timer
+    // Setup an interval timer
+    const setupTimer = (): ReturnType<typeof setInterval> | null => {
         let timer: ReturnType<typeof setInterval> | null = null;
-        if (!pause) {
+        if (!pause && preferences.sessionType != SessionType.Relaxed) {
             timer = setInterval(() => {
                 setCounter((prev) => {
                     const remainingTicks = TICKS_PER_SLIDE - prev;
@@ -152,7 +140,24 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
                 });
             }, INTERVAL_MS);
         }
+        return timer;
+    };
 
+    // Resize the window to fit the image if standalone
+    useEffect(() => {
+        if (isStandalone) {
+            resizeWindow(currentImageUrl, maxWidthRef.current, maxHeightRef.current);
+        }
+    }, [currentImageUrl, isStandalone]);
+
+    useEffect(() => {
+        // Current image URL
+        const fileIndex = imageOrder[orderIndex];
+        const currentFile = imageFiles[fileIndex];
+        const url = URL.createObjectURL(currentFile);
+        setCurrentImageUrl(url);
+        // Setup timer
+        const timer = setupTimer();
         // Keypresses
         const handleKeyPress = (event: KeyboardEvent) => {
             if (event.key === "ArrowRight") {
@@ -203,7 +208,9 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
                 }`}
             />
             {preferences.grid && <ImageGrid />}
-            {preferences.timer && <ProgressBar fraction={counter / TICKS_PER_SLIDE} />}
+            {preferences.timer && preferences.sessionType != SessionType.Relaxed && (
+                <ProgressBar fraction={counter / TICKS_PER_SLIDE} />
+            )}
             {showOverlay && (
                 <ButtonOverlay
                     orderIndex={orderIndex}
@@ -284,19 +291,25 @@ function ButtonOverlay({
                             }
                         }}
                     />
-                    <SlideshowButton
-                        Icon={preferences.mute ? SpeakerXMarkIcon : SpeakerWaveIcon}
-                        onClick={() => updateMute(!preferences.mute)}
-                    />
+                    {preferences.sessionType != SessionType.Relaxed && (
+                        <SlideshowButton
+                            Icon={preferences.mute ? SpeakerXMarkIcon : SpeakerWaveIcon}
+                            onClick={() => updateMute(!preferences.mute)}
+                        />
+                    )}
                     <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
                     <SlideshowButton Icon={GridIcon} onClick={() => updateGrid(!preferences.grid)} />
                     <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={() => updateFlip(!preferences.flip)} />
                     <SlideshowButton Icon={BoltIcon} onClick={() => updateGreyscale(!preferences.greyscale)} />
-                    <SlideshowButton Icon={ClockIcon} onClick={() => updateTimer(!preferences.timer)} />
+                    {preferences.sessionType != SessionType.Relaxed && (
+                        <SlideshowButton Icon={ClockIcon} onClick={() => updateTimer(!preferences.timer)} />
+                    )}
                 </div>
                 <div className="flex justify-center space-x-4">
                     <SlideshowButton Icon={ChevronLeftIcon} onClick={() => prev()} size={"xl"} />
-                    <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={togglePause} size={"xl"} />
+                    {preferences.sessionType != SessionType.Relaxed && (
+                        <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={togglePause} size={"xl"} />
+                    )}
                     <SlideshowButton Icon={ChevronRightIcon} onClick={() => next()} size={"xl"} />
                 </div>
             </div>
