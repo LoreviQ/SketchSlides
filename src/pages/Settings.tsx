@@ -236,13 +236,19 @@ function ScheduleSelector({
     updateSchedules,
 }: ScheduleSelectorProps) {
     const addNewSchedule = () => {
-        const newSchedule = new CustomSchedule("Custom Schedule " + schedules.length, [{ interval: 30000, count: 5 }]);
+        const newSchedule = new CustomSchedule("Custom Schedule " + schedules.length, []);
         const updatedSchedules = [...schedules, newSchedule];
         updateSchedules(updatedSchedules);
+        setSelectedSchedule(newSchedule);
     };
     const deleteSchedule = (index: number) => {
+        const scheduleToDelete = schedules[index];
         const updatedSchedules = schedules.filter((_, i) => i !== index);
         updateSchedules(updatedSchedules);
+        // if deleted schedule is selected, select the default schedule
+        if (selectedSchedule.equals(scheduleToDelete)) {
+            setSelectedSchedule(schedules[0]);
+        }
     };
     return (
         <div className="border-r border-gray-300 dark:border-gray-700 pr-4 space-y-4">
