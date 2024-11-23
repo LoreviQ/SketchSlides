@@ -1,5 +1,21 @@
 import { SessionType, FixedTime } from "../types/session";
 
+interface ActionButtonProps {
+    onClick: () => void;
+    label: string;
+    colour: "blue" | "green";
+}
+export function ActionButton({ onClick, label, colour }: ActionButtonProps) {
+    return (
+        <button
+            className={`w-full py-2 px-4 bg-${colour}-600 text-white rounded-lg hover:bg-${colour}-700 transition`}
+            onClick={onClick}
+        >
+            {label}
+        </button>
+    );
+}
+
 interface ToggleButtonProps<T extends SessionType | FixedTime> {
     onClick: () => void;
     label: T;

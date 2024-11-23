@@ -45,7 +45,7 @@ export class CustomSession {
     }
 }
 
-export const CLASS_SESSION = new CustomSession([
+export const DEFAULT_SESSION = new CustomSession([
     { interval: 30000, count: 12 },
     { interval: 45000, count: 12 },
     { interval: 60000, count: 10 },

@@ -17,7 +17,7 @@ import {
 import { BoltIcon } from "@heroicons/react/24/solid";
 
 import type { SelectedFolder } from "../types/preferences";
-import { CLASS_SESSION, SessionType } from "../types/session";
+import { DEFAULT_SESSION, SessionType } from "../types/session";
 import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
@@ -49,7 +49,7 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
     const [counter, setCounter] = useState(0);
     const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
     const [sessionIntervals, setSessionIntervals] = useState<number[]>(() =>
-        preferences.sessionType === SessionType.Session ? CLASS_SESSION.toIntervals() : []
+        preferences.sessionType === SessionType.Session ? DEFAULT_SESSION.toIntervals() : []
     );
 
     const getCurrentInterval = () => {
