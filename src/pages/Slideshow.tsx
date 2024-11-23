@@ -198,6 +198,9 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
             if (event.key === " ") {
                 togglePause();
             }
+            if (event.key === "Escape") {
+                setRunApp(false);
+            }
         };
 
         window.addEventListener("keydown", handleKeyPress);
