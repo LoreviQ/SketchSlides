@@ -1,4 +1,5 @@
 import { usePreferences } from "../contexts/PreferencesContext";
+import type { CustomSession } from "../types/session";
 import { FixedTime, SessionType } from "../types/session";
 
 export function fixedTimeToMS(fixedTime: FixedTime): number {
@@ -36,4 +37,23 @@ export function sessionTypeToDescription(sessionType: SessionType): string {
         case SessionType.Custom:
             return "Custom mode allows you to create your own schedule.";
     }
+}
+
+// turns a custom session into an array of intervals
+export function customSessionToIntervals(CustomSession: CustomSession): number[] {
+    const intervals: number[] = [];
+    for (const intervalGroup of CustomSession.intervals) {
+        for (let i = 0; i < intervalGroup.count; i++) {
+            intervals.push(intervalGroup.interval);
+        }
+    }
+    return intervals;
+}
+
+export function totalTimeOfCustomSession(CustomSession: CustomSession): number {
+    let totalTime = 0;
+    for (const intervalGroup of CustomSession.intervals) {
+        totalTime += intervalGroup.count * intervalGroup.interval;
+    }
+    return totalTime;
 }
