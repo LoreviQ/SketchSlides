@@ -203,7 +203,8 @@ function FixedCard({}) {
 }
 
 function ScheduleCard({}) {
-    const { preferences } = usePreferences();
+    const { preferences, updatePreferences } = usePreferences();
+    const updateSchedules = preferenceUpdater("schedules", updatePreferences);
     const schedules = preferences.schedules.map((schedule) => CustomSchedule.fromObject(schedule));
     const [selectedSchedule, setSelectedSchedule] = useState(schedules[0]);
     return (
@@ -212,8 +213,13 @@ function ScheduleCard({}) {
                 schedules={schedules}
                 selectedSchedule={selectedSchedule}
                 setSelectedSchedule={setSelectedSchedule}
+                updateSchedules={updateSchedules}
             />
-            <ScheduleDetails selectedSchedule={selectedSchedule} />
+            <ScheduleDetails
+                schedules={schedules}
+                selectedSchedule={selectedSchedule}
+                updateSchedules={updateSchedules}
+            />
         </div>
     );
 }
@@ -221,11 +227,14 @@ interface ScheduleSelectorProps {
     schedules: CustomSchedule[];
     selectedSchedule: CustomSchedule;
     setSelectedSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
+    updateSchedules: (value: CustomSchedule[]) => void;
 }
-function ScheduleSelector({ schedules, selectedSchedule, setSelectedSchedule }: ScheduleSelectorProps) {
-    const { updatePreferences } = usePreferences();
-    const updateSchedules = preferenceUpdater("schedules", updatePreferences);
-
+function ScheduleSelector({
+    schedules,
+    selectedSchedule,
+    setSelectedSchedule,
+    updateSchedules,
+}: ScheduleSelectorProps) {
     const addNewSchedule = () => {
         const newSchedule = new CustomSchedule("Custom Schedule " + schedules.length, [{ interval: 30000, count: 5 }]);
         const updatedSchedules = [...schedules, newSchedule];
@@ -243,7 +252,7 @@ function ScheduleSelector({ schedules, selectedSchedule, setSelectedSchedule }: 
                         key={index}
                         title={schedule.title}
                         time={schedule.totalTime}
-                        isDefault={index === 0}
+                        isDefault={schedule.isDefault}
                         isSelected={selectedSchedule.equals(schedule)}
                         setter={() => setSelectedSchedule(schedule)}
                         deleter={() => deleteSchedule(index)}
@@ -260,10 +269,25 @@ function ScheduleSelector({ schedules, selectedSchedule, setSelectedSchedule }: 
     );
 }
 
-function ScheduleDetails({ selectedSchedule }: { selectedSchedule: CustomSchedule }) {
+interface ScheduleDetailsProps {
+    schedules: CustomSchedule[];
+    selectedSchedule: CustomSchedule;
+    updateSchedules: (value: CustomSchedule[]) => void;
+}
+function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: ScheduleDetailsProps) {
+    const [tempTitle, setTempTitle] = useState(selectedSchedule.title);
+    useEffect(() => {
+        setTempTitle(selectedSchedule.title);
+    }, [selectedSchedule]);
+    console.log(selectedSchedule.isDefault);
     return (
         <div className="pl-4 space-y-4">
-            <h3 className="text-lg font-medium dark:text-white">Schedule Details</h3>
+            <input
+                value={tempTitle}
+                onChange={(e) => setTempTitle(e.target.value)}
+                disabled={selectedSchedule.isDefault}
+                className="text-lg font-medium dark:text-white bg-transparent border-none outline-none focus:outline-none w-full"
+            />
             <div className="space-y-2">
                 {selectedSchedule.intervals.map((interval, index) => (
                     <div key={index} className="p-3 border rounded-lg dark:border-gray-700 dark:text-white">

@@ -22,14 +22,16 @@ export type IntervalGroup = {
 export class CustomSchedule {
     title: string;
     intervals: IntervalGroup[];
+    isDefault: boolean;
 
-    constructor(title: string, intervals: IntervalGroup[]) {
+    constructor(title: string, intervals: IntervalGroup[], isDefault = false) {
         this.title = title;
         this.intervals = intervals;
+        this.isDefault = isDefault;
     }
 
     static fromObject(obj: any): CustomSchedule {
-        return new CustomSchedule(obj.title, obj.intervals);
+        return new CustomSchedule(obj.title, obj.intervals, obj.isDefault);
     }
 
     get totalTime(): number {
@@ -55,10 +57,14 @@ export class CustomSchedule {
     }
 }
 
-export const DEFAULT_SCHEDULE = new CustomSchedule("Default Schedule", [
-    { interval: 30000, count: 12 },
-    { interval: 45000, count: 12 },
-    { interval: 60000, count: 10 },
-    { interval: 90000, count: 10 },
-    { interval: 120000, count: 10 },
-]);
+export const DEFAULT_SCHEDULE = new CustomSchedule(
+    "Default Schedule",
+    [
+        { interval: 30000, count: 12 },
+        { interval: 45000, count: 12 },
+        { interval: 60000, count: 10 },
+        { interval: 90000, count: 10 },
+        { interval: 120000, count: 10 },
+    ],
+    true
+);
