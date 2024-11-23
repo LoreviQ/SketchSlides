@@ -1,5 +1,4 @@
-import { SessionType, FixedTime } from "../types/session";
-import { formatDuration, intervalToDuration } from "date-fns";
+import { SessionType, FixedTime, IntervalGroup } from "../types/session";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface ActionButtonProps {
@@ -93,15 +92,20 @@ export function InputButton({
 
 interface ScheduleButtonProps {
     title: string;
-    time: number;
+    timeString: string;
     isDefault: boolean;
     isSelected: boolean;
     setter: () => void;
     deleter: () => void;
 }
-export function ScheduleButton({ title, time, isDefault, isSelected = false, setter, deleter }: ScheduleButtonProps) {
-    const duration = intervalToDuration({ start: 0, end: time });
-    const timeString = formatDuration(duration, { delimiter: ", " });
+export function ScheduleButton({
+    title,
+    timeString,
+    isDefault,
+    isSelected = false,
+    setter,
+    deleter,
+}: ScheduleButtonProps) {
     return (
         <div
             className={`w-full p-3 flex justify-between items-center text-left border rounded-lg  ${
@@ -124,6 +128,17 @@ export function ScheduleButton({ title, time, isDefault, isSelected = false, set
                     <XMarkIcon className="w-4 h-4" />
                 </button>
             )}
+        </div>
+    );
+}
+interface IntervalGroupButtonProps {
+    interval: IntervalGroup;
+}
+export function IntervalGroupButton({ interval }: IntervalGroupButtonProps) {
+    return (
+        <div className="grid grid-cols-3 text-start space-x-1 p-3 border border-gray-700 text-white">
+            <p>{interval.count} x</p>
+            <p>{interval.timeString()}</p>
         </div>
     );
 }

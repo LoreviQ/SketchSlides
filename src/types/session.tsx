@@ -1,3 +1,5 @@
+import { formatDuration, intervalToDuration } from "date-fns";
+
 export enum SessionType {
     Fixed = "Fixed",
     Schedule = "Schedule",
@@ -55,6 +57,12 @@ export class CustomSchedule {
             totalTime += intervalGroup.count * intervalGroup.interval;
         }
         return totalTime;
+    }
+
+    get totalTimeString(): string {
+        const duration = intervalToDuration({ start: 0, end: this.totalTime });
+        const timeString = formatDuration(duration, { delimiter: ", " });
+        return timeString;
     }
 
     toIntervals(): number[] {

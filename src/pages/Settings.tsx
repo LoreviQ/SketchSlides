@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import type { SelectedFolder } from "../types/preferences";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { SessionType, FixedTime, CustomSchedule, IntervalGroup } from "../types/session";
-import { ToggleButton, InputButton, ActionButton, ScheduleButton } from "../components/buttons";
+import { ToggleButton, InputButton, ActionButton, ScheduleButton, IntervalGroupButton } from "../components/buttons";
 import { formatFileSize } from "../utils/formatters";
 import { saveLastFolder, getLastFolder } from "../utils/indexDB";
 import { sessionTypeToDescription } from "../utils/session";
@@ -257,7 +257,7 @@ function ScheduleSelector({
                     <ScheduleButton
                         key={index}
                         title={schedule.title}
-                        time={schedule.totalTime}
+                        timeString={schedule.totalTimeString}
                         isDefault={schedule.isDefault}
                         isSelected={selectedSchedule.equals(schedule)}
                         setter={() => setSelectedSchedule(schedule)}
@@ -289,27 +289,20 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: Sched
     }, [selectedSchedule]);
     return (
         <div className="pl-4 space-y-4">
-            <input
-                value={tempSchedule.title}
-                onChange={(e) => setTempSchedule(new CustomSchedule(e.target.value, intervals))}
-                disabled={tempSchedule.isDefault}
-                className="text-lg font-medium dark:text-white bg-transparent border-none outline-none focus:outline-none w-full"
-            />
-            <div className="space-y-2">
+            <div className="flex justify-center">
+                <input
+                    value={tempSchedule.title}
+                    onChange={(e) => setTempSchedule(new CustomSchedule(e.target.value, intervals))}
+                    disabled={tempSchedule.isDefault}
+                    className="text-lg font-medium text-white bg-transparent border-none outline-none focus:outline-none text-center"
+                />
+            </div>
+            <div className="">
                 {intervals.map((interval, index) => (
-                    <div
-                        key={index}
-                        className="flex justify-center space-x-1 p-3 border rounded-lg dark:border-gray-700 dark:text-white"
-                    >
-                        <p>{interval.count}</p>
-                        <p>x</p>
-                        <p>{interval.timeString()}</p>
-                    </div>
+                    <IntervalGroupButton key={index} interval={interval} />
                 ))}
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-                Total time: {Math.round(tempSchedule.totalTime / 1000 / 60)} minutes
-            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Total time: {tempSchedule.totalTimeString}</div>
         </div>
     );
 }
