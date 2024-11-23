@@ -1,5 +1,6 @@
 import { SessionType, FixedTime } from "../types/session";
 import { formatDuration, intervalToDuration } from "date-fns";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface ActionButtonProps {
     onClick: () => void;
@@ -102,22 +103,25 @@ export function ScheduleButton({ title, time, isDefault, isSelected = false, set
     const duration = intervalToDuration({ start: 0, end: time });
     const timeString = formatDuration(duration, { delimiter: ", " });
     return (
-        <div className="relative">
-            <button
-                className={`w-full p-3 text-left border rounded-lg ${
-                    isSelected ? "bg-gray-100 dark:bg-gray-800" : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                } dark:border-gray-700 dark:text-white`}
-                onClick={setter}
-            >
+        <button
+            className={`w-full p-3 flex justify-between items-center text-left border rounded-lg ${
+                isSelected ? "bg-gray-100 dark:bg-gray-800" : "hover:bg-gray-100 dark:hover:bg-gray-800"
+            } dark:border-gray-700 dark:text-white`}
+            onClick={setter}
+        >
+            <div>
                 <div>{title}</div>
                 <div className="text-sm text-gray-500">{timeString}</div>
-            </button>
+            </div>
             {!isDefault && ( // Don't allow deleting the default schedule
-                <button className="absolute top-2 right-2 p-1 text-gray-500 hover:text-red-500" onClick={deleter}>
-                    ×
+                <button
+                    className="p-2 m-2 text-gray-500 hover:text-red-500 text-2xl rounded-full bg-transparent border-none outline-none focus:outline-none"
+                    onClick={deleter}
+                >
+                    <XMarkIcon className="w-4 h-4" />
                 </button>
             )}
-        </div>
+        </button>
     );
 }
 
