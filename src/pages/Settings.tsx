@@ -6,6 +6,7 @@ import { SessionType, FixedTime } from "../types/session";
 import { ToggleButton, InputButton } from "../components/buttons";
 import { formatFileSize } from "../utils/formatters";
 import { saveLastFolder, getLastFolder } from "../utils/indexDB";
+import { sessionTypeToDescription } from "../utils/session";
 
 interface SettingsProps {
     selectedFolder: null | SelectedFolder;
@@ -125,38 +126,44 @@ export default function Settings({ selectedFolder, setSelectedFolder, setImageFi
                         ))}
                     </div>
                 </div>
-                {preferences.sessionType == SessionType.Practice && (
-                    <div className="space-y-4">
-                        <h2 className="text-xl font-semibold dark:text-white">Fixed Time</h2>
-                        <div className="flex gap-2">
-                            {Object.values(FixedTime).map((time) => {
-                                if (time === FixedTime.Other) {
+                <div className="min-w-[524px] min-h-[86px] space-y-4 justify-center items-center flex flex-col">
+                    {preferences.sessionType == SessionType.Practice ? (
+                        <>
+                            <h2 className="text-xl font-semibold dark:text-white">Fixed Time</h2>
+                            <div className="flex gap-2">
+                                {Object.values(FixedTime).map((time) => {
+                                    if (time === FixedTime.Other) {
+                                        return (
+                                            <InputButton
+                                                key={time}
+                                                value={preferences.customFixedTime ?? ""}
+                                                onClick={() => updateFixedTime(FixedTime.Other)}
+                                                onChange={(value) => {
+                                                    updateFixedTime(FixedTime.Other);
+                                                    updateCustomFixedTime(typeof value === "number" ? value : null);
+                                                }}
+                                                placeholder="Custom (s)"
+                                                isSelected={preferences.fixedTime === FixedTime.Other}
+                                            />
+                                        );
+                                    }
                                     return (
-                                        <InputButton
+                                        <ToggleButton
                                             key={time}
-                                            value={preferences.customFixedTime ?? ""}
-                                            onClick={() => updateFixedTime(FixedTime.Other)}
-                                            onChange={(value) => {
-                                                updateFixedTime(FixedTime.Other);
-                                                updateCustomFixedTime(typeof value === "number" ? value : null);
-                                            }}
-                                            placeholder="Custom (s)"
-                                            isSelected={preferences.fixedTime === FixedTime.Other}
+                                            label={time}
+                                            isSelected={preferences.fixedTime === time}
+                                            onClick={() => updateFixedTime(time)}
                                         />
                                     );
-                                }
-                                return (
-                                    <ToggleButton
-                                        key={time}
-                                        label={time}
-                                        isSelected={preferences.fixedTime === time}
-                                        onClick={() => updateFixedTime(time)}
-                                    />
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
+                                })}
+                            </div>
+                        </>
+                    ) : (
+                        <p className="text-white whitespace-pre-line text-center">
+                            {sessionTypeToDescription(preferences.sessionType)}
+                        </p>
+                    )}
+                </div>
                 <button
                     className="w-full py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
                     onClick={runApp}
