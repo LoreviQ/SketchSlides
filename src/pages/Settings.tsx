@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import type { SelectedFolder } from "../types/preferences";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { SessionType, FixedTime } from "../types/session";
-import { ToggleButton } from "../components/buttons";
+import { ToggleButton, InputButton } from "../components/buttons";
 import { formatFileSize } from "../utils/formatters";
 import { saveLastFolder, getLastFolder } from "../utils/indexDB";
 
@@ -17,6 +17,15 @@ export default function Settings({ selectedFolder, setSelectedFolder, setImageFi
     const { preferences, updatePreferences } = usePreferences();
     const updateFixedTime = preferenceUpdater("fixedTime", updatePreferences);
     const updateSessionType = preferenceUpdater("sessionType", updatePreferences);
+    const updateCustomFixedTime = preferenceUpdater("customFixedTime", updatePreferences);
+
+    const runApp = () => {
+        if (!selectedFolder) {
+            alert("Please select a folder first");
+        } else {
+            setRunApp(true);
+        }
+    };
 
     const updateFolderData = async (dirHandle: FileSystemDirectoryHandle) => {
         const files = await FileScanner(dirHandle);
@@ -116,25 +125,36 @@ export default function Settings({ selectedFolder, setSelectedFolder, setImageFi
                 <div className="space-y-4">
                     <h2 className="text-xl font-semibold dark:text-white">Fixed Time</h2>
                     <div className="flex gap-2">
-                        {Object.values(FixedTime).map((time) => (
-                            <ToggleButton
-                                key={time}
-                                label={time}
-                                isSelected={preferences.fixedTime === time}
-                                onClick={() => updateFixedTime(time)}
-                            />
-                        ))}
+                        {Object.values(FixedTime).map((time) => {
+                            if (time === FixedTime.Other) {
+                                return (
+                                    <InputButton
+                                        key={time}
+                                        value={preferences.customFixedTime ?? ""}
+                                        onClick={() => updateFixedTime(FixedTime.Other)}
+                                        onChange={(value) => {
+                                            updateFixedTime(FixedTime.Other);
+                                            updateCustomFixedTime(typeof value === "number" ? value : null);
+                                        }}
+                                        placeholder="Custom (s)"
+                                        isSelected={preferences.fixedTime === FixedTime.Other}
+                                    />
+                                );
+                            }
+                            return (
+                                <ToggleButton
+                                    key={time}
+                                    label={time}
+                                    isSelected={preferences.fixedTime === time}
+                                    onClick={() => updateFixedTime(time)}
+                                />
+                            );
+                        })}
                     </div>
                 </div>
                 <button
                     className="w-full py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
-                    onClick={() => {
-                        if (!selectedFolder) {
-                            alert("Please select a folder first");
-                        } else {
-                            setRunApp(true);
-                        }
-                    }}
+                    onClick={runApp}
                 >
                     Start
                 </button>

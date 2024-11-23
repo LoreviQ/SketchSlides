@@ -31,7 +31,5 @@ export function fixedTimeToMS(fixedTime: FixedTime): number {
             return 600000;
         case FixedTime.Other:
             return 30000;
-        default:
-            return 30000; // Default to 30 seconds if unspecified
     }
 }

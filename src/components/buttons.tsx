@@ -24,6 +24,55 @@ export function ToggleButton<T extends SessionType | FixedTime>({
     );
 }
 
+interface InputButtonProps {
+    value: number | "";
+    onClick: () => void;
+    onChange: (value: number | "") => void;
+    placeholder?: string;
+    fullWidth?: boolean;
+    isSelected?: boolean;
+}
+
+export function InputButton({
+    value,
+    onClick,
+    onChange,
+    placeholder,
+    fullWidth = true,
+    isSelected = false,
+}: InputButtonProps) {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.value;
+        if (newValue === "") {
+            onChange("");
+        } else if (/^\d+$/.test(newValue)) {
+            onChange(parseInt(newValue));
+        }
+    };
+
+    return (
+        <div
+            className={`${fullWidth ? "flex-1" : ""} relative py-2 rounded-lg text-white inline-block ${
+                isSelected ? "bg-blue-600 " : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+            }`}
+        >
+            <input
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                value={value}
+                onClick={onClick}
+                onChange={handleChange}
+                placeholder={placeholder}
+                className={`w-32 pe-8  text-white ${
+                    isSelected ? "bg-blue-600 " : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+                } outline-none text-right`}
+            />
+            {value !== "" && <span className="absolute right-6 pointer-events-none">s</span>}
+        </div>
+    );
+}
+
 interface SlideshowButtonProps {
     onClick: () => void;
     Icon: React.ComponentType<{ className?: string }>;

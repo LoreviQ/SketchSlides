@@ -18,6 +18,7 @@ export type UserPreferences = {
     flip: boolean;
     greyscale: boolean;
     timer: boolean;
+    customFixedTime: number | null;
 };
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
@@ -28,4 +29,5 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
     flip: false,
     greyscale: false,
     timer: false,
+    customFixedTime: null,
 };
