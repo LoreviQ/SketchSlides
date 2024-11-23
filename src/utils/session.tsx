@@ -29,7 +29,7 @@ export function sessionTypeToDescription(sessionType: SessionType): string {
     switch (sessionType) {
         case SessionType.Fixed:
             return "Practice mode has a fixed interval timer.\nYou can pause whenever you like.";
-        case SessionType.Session:
+        case SessionType.Schedule:
             return "Class mode is a 1 hour session.\nStarts with small intervals and ramps up over time.";
         case SessionType.Relaxed:
             return "Relaxed mode has no timer.\nYou decide when to advance to the next image.";

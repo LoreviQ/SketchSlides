@@ -1,6 +1,6 @@
 export enum SessionType {
     Fixed = "Fixed",
-    Session = "Session",
+    Schedule = "Schedule",
     Relaxed = "Relaxed",
 }
 
@@ -19,7 +19,7 @@ export type IntervalGroup = {
     count: number;
 };
 
-export class CustomSession {
+export class CustomSchedule {
     intervals: IntervalGroup[];
 
     constructor(intervals: IntervalGroup[]) {
@@ -45,7 +45,7 @@ export class CustomSession {
     }
 }
 
-export const DEFAULT_SESSION = new CustomSession([
+export const DEFAULT_SCHEDULE = new CustomSchedule([
     { interval: 30000, count: 12 },
     { interval: 45000, count: 12 },
     { interval: 60000, count: 10 },

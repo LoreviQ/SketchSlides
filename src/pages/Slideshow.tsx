@@ -17,7 +17,7 @@ import {
 import { BoltIcon } from "@heroicons/react/24/solid";
 
 import type { SelectedFolder } from "../types/preferences";
-import { DEFAULT_SESSION, SessionType } from "../types/session";
+import { DEFAULT_SCHEDULE, SessionType } from "../types/session";
 import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
@@ -49,11 +49,11 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
     const [counter, setCounter] = useState(0);
     const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
     const [sessionIntervals, setSessionIntervals] = useState<number[]>(() =>
-        preferences.sessionType === SessionType.Session ? DEFAULT_SESSION.toIntervals() : []
+        preferences.sessionType === SessionType.Schedule ? DEFAULT_SCHEDULE.toIntervals() : []
     );
 
     const getCurrentInterval = () => {
-        if (preferences.sessionType === SessionType.Session) {
+        if (preferences.sessionType === SessionType.Schedule) {
             return sessionIntervals[currentIntervalIndex];
         }
         return fixedTimeToMS(preferences.fixedTime);
@@ -72,7 +72,7 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
     const next = () => {
         console.log(timeMS);
         // Progress to the next interval if in Session mode
-        if (preferences.sessionType === SessionType.Session) {
+        if (preferences.sessionType === SessionType.Schedule) {
             if (currentIntervalIndex + 1 >= sessionIntervals.length) {
                 setRunApp(false);
                 return;
@@ -98,7 +98,7 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
             return;
         }
         // Progress to the previous interval if in class mode
-        if (preferences.sessionType === SessionType.Session) {
+        if (preferences.sessionType === SessionType.Schedule) {
             setCurrentIntervalIndex((prev) => (prev - 1 < 0 ? sessionIntervals.length - 1 : prev - 1));
         }
         setOrderIndex(orderIndex - 1);

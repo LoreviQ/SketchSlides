@@ -1,4 +1,4 @@
-import { SessionType, FixedTime } from "./session";
+import { SessionType, FixedTime, CustomSchedule, DEFAULT_SCHEDULE } from "./session";
 
 export type SelectedFolder = {
     name: string;
@@ -11,6 +11,7 @@ export type UserPreferences = {
     // Session settings
     sessionType: SessionType;
     fixedTime: FixedTime;
+    schedules: CustomSchedule[];
 
     // Practice mode preferences
     mute: boolean;
@@ -24,6 +25,7 @@ export type UserPreferences = {
 export const DEFAULT_PREFERENCES: UserPreferences = {
     sessionType: SessionType.Fixed,
     fixedTime: FixedTime.ThirtySeconds,
+    schedules: [DEFAULT_SCHEDULE],
     mute: false,
     grid: false,
     flip: false,
