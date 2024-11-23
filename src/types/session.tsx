@@ -60,6 +60,9 @@ export class CustomSchedule {
     }
 
     get totalTimeString(): string {
+        if (this.totalTime === 0) {
+            return "0 minutes";
+        }
         const duration = intervalToDuration({ start: 0, end: this.totalTime });
         const timeString = formatDuration(duration, { delimiter: ", " });
         return timeString;

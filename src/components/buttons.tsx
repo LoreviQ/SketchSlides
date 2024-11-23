@@ -1,5 +1,5 @@
-import { SessionType, FixedTime, IntervalGroup } from "../types/session";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { SessionType, FixedTime, IntervalGroup, CustomSchedule } from "../types/session";
+import { XMarkIcon, PlusIcon, BellSnoozeIcon } from "@heroicons/react/24/outline";
 
 interface ActionButtonProps {
     onClick: () => void;
@@ -132,9 +132,32 @@ export function ScheduleButton({
     );
 }
 interface IntervalGroupButtonProps {
-    interval: IntervalGroup;
+    interval: IntervalGroup | null;
+    tempSchedule: CustomSchedule;
+    setTempSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
 }
-export function IntervalGroupButton({ interval }: IntervalGroupButtonProps) {
+export function IntervalGroupButton({ interval, tempSchedule, setTempSchedule }: IntervalGroupButtonProps) {
+    const newInterval = () => {
+        const newInterval = new IntervalGroup(30000, 5);
+        const newIntervals = [...tempSchedule.intervals, newInterval];
+        setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
+    };
+
+    if (!interval) {
+        return (
+            <div
+                className="grid grid-cols-2 border
+             border-gray-700  text-white"
+            >
+                <div onClick={newInterval} className="flex justify-center p-3  hover:bg-gray-800">
+                    <PlusIcon className="w-4 h-4" />
+                </div>
+                <div className="flex justify-center p-3  hover:bg-gray-800">
+                    <BellSnoozeIcon className="w-4 h-4" />
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="grid grid-cols-3 text-start space-x-1 p-3 border border-gray-700 text-white">
             <p>{interval.count} x</p>

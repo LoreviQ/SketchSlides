@@ -236,7 +236,7 @@ function ScheduleSelector({
     updateSchedules,
 }: ScheduleSelectorProps) {
     const addNewSchedule = () => {
-        const newSchedule = new CustomSchedule("Custom Schedule " + schedules.length, []);
+        const newSchedule = new CustomSchedule("Custom Schedule " + schedules.length, [new IntervalGroup(30000, 5)]);
         const updatedSchedules = [...schedules, newSchedule];
         updateSchedules(updatedSchedules);
         setSelectedSchedule(newSchedule);
@@ -299,8 +299,14 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: Sched
             </div>
             <div className="">
                 {intervals.map((interval, index) => (
-                    <IntervalGroupButton key={index} interval={interval} />
+                    <IntervalGroupButton
+                        key={index}
+                        interval={interval}
+                        tempSchedule={tempSchedule}
+                        setTempSchedule={setTempSchedule}
+                    />
                 ))}
+                <IntervalGroupButton interval={null} tempSchedule={tempSchedule} setTempSchedule={setTempSchedule} />
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">Total time: {tempSchedule.totalTimeString}</div>
         </div>
