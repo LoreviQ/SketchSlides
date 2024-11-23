@@ -20,16 +20,36 @@ export type IntervalGroup = {
     count: number;
 };
 
-export type CustomSession = {
+export class CustomSession {
     intervals: IntervalGroup[];
-};
 
-export const CLASS_SESSION: CustomSession = {
-    intervals: [
-        { interval: 30000, count: 12 },
-        { interval: 45000, count: 12 },
-        { interval: 60000, count: 10 },
-        { interval: 90000, count: 10 },
-        { interval: 120000, count: 10 },
-    ],
-};
+    constructor(intervals: IntervalGroup[]) {
+        this.intervals = intervals;
+    }
+
+    get totalTime(): number {
+        let totalTime = 0;
+        for (const intervalGroup of this.intervals) {
+            totalTime += intervalGroup.count * intervalGroup.interval;
+        }
+        return totalTime;
+    }
+
+    toIntervals(): number[] {
+        const intervals: number[] = [];
+        for (const intervalGroup of this.intervals) {
+            for (let i = 0; i < intervalGroup.count; i++) {
+                intervals.push(intervalGroup.interval);
+            }
+        }
+        return intervals;
+    }
+}
+
+export const CLASS_SESSION = new CustomSession([
+    { interval: 30000, count: 12 },
+    { interval: 45000, count: 12 },
+    { interval: 60000, count: 10 },
+    { interval: 90000, count: 10 },
+    { interval: 120000, count: 10 },
+]);
