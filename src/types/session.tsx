@@ -14,10 +14,25 @@ export enum FixedTime {
     Other = "Other",
 }
 
-export type IntervalGroup = {
+export class IntervalGroup {
     interval: number; // in milliseconds
     count: number;
-};
+
+    constructor(interval: number, count: number) {
+        this.interval = interval;
+        this.count = count;
+    }
+
+    static fromObject(obj: any): IntervalGroup {
+        return new IntervalGroup(obj.interval, obj.count);
+    }
+
+    timeString(): string {
+        const minutes = Math.floor(this.interval / 1000 / 60);
+        const seconds = (this.interval / 1000) % 60;
+        return `${minutes ? `${minutes}m` : ""} ${seconds ? `${seconds}s` : ""}`;
+    }
+}
 
 export class CustomSchedule {
     title: string;
@@ -60,11 +75,11 @@ export class CustomSchedule {
 export const DEFAULT_SCHEDULE = new CustomSchedule(
     "Default Schedule",
     [
-        { interval: 30000, count: 12 },
-        { interval: 45000, count: 12 },
-        { interval: 60000, count: 10 },
-        { interval: 90000, count: 10 },
-        { interval: 120000, count: 10 },
+        new IntervalGroup(30000, 12),
+        new IntervalGroup(45000, 12),
+        new IntervalGroup(60000, 10),
+        new IntervalGroup(90000, 10),
+        new IntervalGroup(120000, 10),
     ],
     true
 );

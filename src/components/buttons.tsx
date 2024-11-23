@@ -117,7 +117,7 @@ export function ScheduleButton({ title, time, isDefault, isSelected = false, set
                 <button
                     className="p-2 m-2 text-gray-500 hover:text-red-500 text-2xl rounded-full bg-transparent border-none outline-none focus:outline-none"
                     onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering the parent's onClick
+                        e.stopPropagation();
                         deleter();
                     }}
                 >

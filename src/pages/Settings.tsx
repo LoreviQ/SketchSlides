@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { SelectedFolder } from "../types/preferences";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
-import { SessionType, FixedTime, CustomSchedule } from "../types/session";
+import { SessionType, FixedTime, CustomSchedule, IntervalGroup } from "../types/session";
 import { ToggleButton, InputButton, ActionButton, ScheduleButton } from "../components/buttons";
 import { formatFileSize } from "../utils/formatters";
 import { saveLastFolder, getLastFolder } from "../utils/indexDB";
@@ -276,27 +276,33 @@ interface ScheduleDetailsProps {
     updateSchedules: (value: CustomSchedule[]) => void;
 }
 function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: ScheduleDetailsProps) {
-    const [tempTitle, setTempTitle] = useState(selectedSchedule.title);
+    const [tempSchedule, setTempSchedule] = useState(selectedSchedule);
+    const intervals = tempSchedule.intervals.map((interval) => IntervalGroup.fromObject(interval));
     useEffect(() => {
-        setTempTitle(selectedSchedule.title);
+        setTempSchedule(selectedSchedule);
     }, [selectedSchedule]);
     return (
         <div className="pl-4 space-y-4">
             <input
-                value={tempTitle}
-                onChange={(e) => setTempTitle(e.target.value)}
-                disabled={selectedSchedule.isDefault}
+                value={tempSchedule.title}
+                onChange={(e) => setTempSchedule(new CustomSchedule(e.target.value, intervals))}
+                disabled={tempSchedule.isDefault}
                 className="text-lg font-medium dark:text-white bg-transparent border-none outline-none focus:outline-none w-full"
             />
             <div className="space-y-2">
-                {selectedSchedule.intervals.map((interval, index) => (
-                    <div key={index} className="p-3 border rounded-lg dark:border-gray-700 dark:text-white">
-                        {interval.count}x {interval.interval / 1000}s intervals
+                {intervals.map((interval, index) => (
+                    <div
+                        key={index}
+                        className="flex justify-center space-x-1 p-3 border rounded-lg dark:border-gray-700 dark:text-white"
+                    >
+                        <p>{interval.count}</p>
+                        <p>x</p>
+                        <p>{interval.timeString()}</p>
                     </div>
                 ))}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-                Total time: {Math.round(selectedSchedule.totalTime / 1000 / 60)} minutes
+                Total time: {Math.round(tempSchedule.totalTime / 1000 / 60)} minutes
             </div>
         </div>
     );
