@@ -1,8 +1,7 @@
 export enum SessionType {
-    Practice = "Practice",
-    Class = "Class",
+    Fixed = "Fixed",
+    Session = "Session",
     Relaxed = "Relaxed",
-    Custom = "Custom",
 }
 
 export enum FixedTime {

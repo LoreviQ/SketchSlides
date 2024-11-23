@@ -49,11 +49,11 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
     const [counter, setCounter] = useState(0);
     const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
     const [sessionIntervals, setSessionIntervals] = useState<number[]>(() =>
-        preferences.sessionType === SessionType.Class ? CLASS_SESSION.toIntervals() : []
+        preferences.sessionType === SessionType.Session ? CLASS_SESSION.toIntervals() : []
     );
 
     const getCurrentInterval = () => {
-        if (preferences.sessionType === SessionType.Class) {
+        if (preferences.sessionType === SessionType.Session) {
             return sessionIntervals[currentIntervalIndex];
         }
         return fixedTimeToMS(preferences.fixedTime);
@@ -72,7 +72,7 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
     const next = () => {
         console.log(timeMS);
         // Progress to the next interval if in class mode
-        if (preferences.sessionType === SessionType.Class) {
+        if (preferences.sessionType === SessionType.Session) {
             if (currentIntervalIndex + 1 >= sessionIntervals.length) {
                 setRunApp(false);
                 return;
@@ -98,7 +98,7 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
             return;
         }
         // Progress to the previous interval if in class mode
-        if (preferences.sessionType === SessionType.Class) {
+        if (preferences.sessionType === SessionType.Session) {
             setCurrentIntervalIndex((prev) => (prev - 1 < 0 ? sessionIntervals.length - 1 : prev - 1));
         }
         setOrderIndex(orderIndex - 1);

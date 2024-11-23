@@ -127,7 +127,7 @@ export default function Settings({ selectedFolder, setSelectedFolder, setImageFi
                     </div>
                 </div>
                 <div className="min-w-[524px] min-h-[86px] space-y-4 justify-center items-center flex flex-col">
-                    {preferences.sessionType == SessionType.Practice ? (
+                    {preferences.sessionType == SessionType.Fixed ? (
                         <>
                             <h2 className="text-xl font-semibold dark:text-white">Fixed Time</h2>
                             <div className="flex gap-2">

@@ -22,7 +22,7 @@ export type UserPreferences = {
 };
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
-    sessionType: SessionType.Practice,
+    sessionType: SessionType.Fixed,
     fixedTime: FixedTime.ThirtySeconds,
     mute: false,
     grid: false,
