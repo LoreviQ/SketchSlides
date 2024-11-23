@@ -38,13 +38,13 @@ interface SlideshowProps {
 export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, setRunApp }: SlideshowProps) {
     const { preferences } = usePreferences();
 
-    // Image display states
+    // Image display variables
     const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
     const [orderIndex, setOrderIndex] = useState(0);
     const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
     const [showOverlay, toggleShowOverlay] = useToggle(false);
 
-    // Progress and interval timer states
+    // Progress and interval timer variables
     const [pause, togglePause] = useToggle(false);
     const [counter, setCounter] = useState(0);
     const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
@@ -61,7 +61,7 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
     const timeMS = getCurrentInterval();
     const TICKS_PER_SLIDE = timeMS / INTERVAL_MS;
 
-    // Window resizing states
+    // Window resizing variables
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
 
@@ -71,7 +71,7 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
     // Move to the next image in the order
     const next = () => {
         console.log(timeMS);
-        // Progress to the next interval if in class mode
+        // Progress to the next interval if in Session mode
         if (preferences.sessionType === SessionType.Session) {
             if (currentIntervalIndex + 1 >= sessionIntervals.length) {
                 setRunApp(false);
@@ -187,8 +187,6 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
         const currentFile = imageFiles[fileIndex];
         const url = URL.createObjectURL(currentFile);
         setCurrentImageUrl(url);
-        // Setup timer
-        const timer = setupTimer();
         // Keypresses
         const handleKeyPress = (event: KeyboardEvent) => {
             if (event.key === "ArrowRight") {
@@ -203,12 +201,17 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
         };
 
         window.addEventListener("keydown", handleKeyPress);
-
-        // Cleanup function
         return () => {
             URL.revokeObjectURL(url);
-            if (timer) clearInterval(timer);
             window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [orderIndex]);
+
+    // Set up interval timer
+    useEffect(() => {
+        const timer = setupTimer();
+        return () => {
+            if (timer) clearInterval(timer);
         };
     }, [orderIndex, pause, preferences.mute]);
 
