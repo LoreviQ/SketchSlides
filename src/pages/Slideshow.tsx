@@ -28,13 +28,13 @@ import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContex
 
 const INTERVAL_MS = 10;
 
-interface PracticeProps {
+interface SlideshowProps {
     selectedFolder: SelectedFolder;
     imageFiles: File[];
     setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function Practice({ selectedFolder, imageFiles, setImageFiles, setRunApp }: PracticeProps) {
+export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, setRunApp }: SlideshowProps) {
     const { preferences } = usePreferences();
     const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
     const [orderIndex, setOrderIndex] = useState(0);
