@@ -103,10 +103,10 @@ export function ScheduleButton({ title, time, isDefault, isSelected = false, set
     const duration = intervalToDuration({ start: 0, end: time });
     const timeString = formatDuration(duration, { delimiter: ", " });
     return (
-        <button
-            className={`w-full p-3 flex justify-between items-center text-left border rounded-lg ${
-                isSelected ? "bg-gray-100 dark:bg-gray-800" : "hover:bg-gray-100 dark:hover:bg-gray-800"
-            } dark:border-gray-700 dark:text-white`}
+        <div
+            className={`w-full p-3 flex justify-between items-center text-left border rounded-lg  ${
+                isSelected ? "bg-gray-800" : "bg-zinc-900 hover:bg-gray-800"
+            } border-gray-700 text-white`}
             onClick={setter}
         >
             <div>
@@ -116,12 +116,15 @@ export function ScheduleButton({ title, time, isDefault, isSelected = false, set
             {!isDefault && ( // Don't allow deleting the default schedule
                 <button
                     className="p-2 m-2 text-gray-500 hover:text-red-500 text-2xl rounded-full bg-transparent border-none outline-none focus:outline-none"
-                    onClick={deleter}
+                    onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the parent's onClick
+                        deleter();
+                    }}
                 >
                     <XMarkIcon className="w-4 h-4" />
                 </button>
             )}
-        </button>
+        </div>
     );
 }
 

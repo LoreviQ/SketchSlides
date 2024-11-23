@@ -258,12 +258,13 @@ function ScheduleSelector({
                         deleter={() => deleteSchedule(index)}
                     />
                 ))}
-                <button
-                    className="w-full p-3 text-center border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700 dark:text-white"
+                <div
+                    className="w-full p-3 text-center border rounded-lg bg-zinc-900
+                    hover:bg-gray-800 border-gray-700 dark:text-white"
                     onClick={addNewSchedule}
                 >
                     + Create New Schedule
-                </button>
+                </div>
             </div>
         </div>
     );
@@ -279,7 +280,6 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: Sched
     useEffect(() => {
         setTempTitle(selectedSchedule.title);
     }, [selectedSchedule]);
-    console.log(selectedSchedule.isDefault);
     return (
         <div className="pl-4 space-y-4">
             <input
