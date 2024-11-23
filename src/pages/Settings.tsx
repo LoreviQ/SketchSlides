@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 import type { SelectedFolder } from "../types/preferences";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
-import { SessionType, FixedTime, DEFAULT_SCHEDULE, CustomSchedule } from "../types/session";
-import { ToggleButton, InputButton, ActionButton } from "../components/buttons";
+import { SessionType, FixedTime, CustomSchedule } from "../types/session";
+import { ToggleButton, InputButton, ActionButton, ScheduleButton } from "../components/buttons";
 import { formatFileSize } from "../utils/formatters";
 import { saveLastFolder, getLastFolder } from "../utils/indexDB";
 import { sessionTypeToDescription } from "../utils/session";
@@ -208,55 +208,50 @@ function FixedCard({}) {
 
 function ScheduleCard({}) {
     const { preferences } = usePreferences();
-    const [selectedSchedule, setSelectedSchedule] = useState(preferences.schedules[0]);
+    const schedules = preferences.schedules.map((schedule) => CustomSchedule.fromObject(schedule));
+    const [selectedSchedule, setSelectedSchedule] = useState(schedules[0]);
     return (
         <div className="w-full grid grid-cols-2 gap-4">
-            <ScheduleSelector setSelectedSchedule={setSelectedSchedule} />
+            <ScheduleSelector
+                schedules={schedules}
+                selectedSchedule={selectedSchedule}
+                setSelectedSchedule={setSelectedSchedule}
+            />
             <ScheduleDetails selectedSchedule={selectedSchedule} />
         </div>
     );
 }
-
-function ScheduleSelector({
-    setSelectedSchedule,
-}: {
+interface ScheduleSelectorProps {
+    schedules: CustomSchedule[];
+    selectedSchedule: CustomSchedule;
     setSelectedSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
-}) {
-    const { preferences, updatePreferences } = usePreferences();
+}
+function ScheduleSelector({ schedules, selectedSchedule, setSelectedSchedule }: ScheduleSelectorProps) {
+    const { updatePreferences } = usePreferences();
     const updateSchedules = preferenceUpdater("schedules", updatePreferences);
+
     const addNewSchedule = () => {
-        const newSchedule = new CustomSchedule([{ interval: 30000, count: 5 }]);
-        const updatedSchedules = [...preferences.schedules, newSchedule];
+        const newSchedule = new CustomSchedule("Custom Schedule " + schedules.length, [{ interval: 30000, count: 5 }]);
+        const updatedSchedules = [...schedules, newSchedule];
         updateSchedules(updatedSchedules);
     };
     const deleteSchedule = (index: number) => {
-        const updatedSchedules = preferences.schedules.filter((_, i) => i !== index);
+        const updatedSchedules = schedules.filter((_, i) => i !== index);
         updateSchedules(updatedSchedules);
     };
     return (
         <div className="border-r border-gray-300 dark:border-gray-700 pr-4 space-y-4">
             <div className="space-y-2">
-                {preferences.schedules.map((schedule, index) => (
-                    <div key={index} className="relative">
-                        <button
-                            className="w-full p-3 text-left border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700 dark:text-white"
-                            onClick={() => setSelectedSchedule(schedule)}
-                        >
-                            <div>{index === 0 ? "Default Schedule" : `Custom Schedule ${index}`}</div>
-                            <div className="text-sm text-gray-500">
-                                {schedule.intervals.length} intervals •{Math.round(schedule.totalTime / 1000 / 60)}{" "}
-                                minutes total
-                            </div>
-                        </button>
-                        {index !== 0 && ( // Don't allow deleting the default schedule
-                            <button
-                                className="absolute top-2 right-2 p-1 text-gray-500 hover:text-red-500"
-                                onClick={() => deleteSchedule(index)}
-                            >
-                                ×
-                            </button>
-                        )}
-                    </div>
+                {schedules.map((schedule, index) => (
+                    <ScheduleButton
+                        key={index}
+                        title={schedule.title}
+                        time={schedule.totalTime}
+                        isDefault={index === 0}
+                        isSelected={selectedSchedule.equals(schedule)}
+                        setter={() => setSelectedSchedule(schedule)}
+                        deleter={() => deleteSchedule(index)}
+                    />
                 ))}
                 <button
                     className="w-full p-3 text-center border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700 dark:text-white"

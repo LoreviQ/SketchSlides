@@ -70,7 +70,6 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
 
     // Move to the next image in the order
     const next = () => {
-        console.log(timeMS);
         // Progress to the next interval if in Session mode
         if (preferences.sessionType === SessionType.Schedule) {
             if (currentIntervalIndex + 1 >= sessionIntervals.length) {

@@ -1,4 +1,5 @@
 import { SessionType, FixedTime } from "../types/session";
+import { formatDuration, intervalToDuration } from "date-fns";
 
 interface ActionButtonProps {
     onClick: () => void;
@@ -89,12 +90,42 @@ export function InputButton({
     );
 }
 
+interface ScheduleButtonProps {
+    title: string;
+    time: number;
+    isDefault: boolean;
+    isSelected: boolean;
+    setter: () => void;
+    deleter: () => void;
+}
+export function ScheduleButton({ title, time, isDefault, isSelected = false, setter, deleter }: ScheduleButtonProps) {
+    const duration = intervalToDuration({ start: 0, end: time });
+    const timeString = formatDuration(duration, { delimiter: ", " });
+    return (
+        <div className="relative">
+            <button
+                className={`w-full p-3 text-left border rounded-lg ${
+                    isSelected ? "bg-gray-100 dark:bg-gray-800" : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                } dark:border-gray-700 dark:text-white`}
+                onClick={setter}
+            >
+                <div>{title}</div>
+                <div className="text-sm text-gray-500">{timeString}</div>
+            </button>
+            {!isDefault && ( // Don't allow deleting the default schedule
+                <button className="absolute top-2 right-2 p-1 text-gray-500 hover:text-red-500" onClick={deleter}>
+                    ×
+                </button>
+            )}
+        </div>
+    );
+}
+
 interface SlideshowButtonProps {
     onClick: () => void;
     Icon: React.ComponentType<{ className?: string }>;
     size?: "sm" | "md" | "lg" | "xl"; // Using preset sizes instead
 }
-
 export function SlideshowButton({ onClick, Icon, size = "md" }: SlideshowButtonProps) {
     const sizeClasses = {
         sm: {
