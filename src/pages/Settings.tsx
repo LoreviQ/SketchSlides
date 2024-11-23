@@ -22,9 +22,13 @@ export default function Settings({ selectedFolder, setSelectedFolder, setImageFi
     const runApp = () => {
         if (!selectedFolder) {
             alert("Please select a folder first");
-        } else {
-            setRunApp(true);
+            return;
         }
+        if (preferences.fixedTime === FixedTime.Other && preferences.customFixedTime === null) {
+            alert("Please enter a custom fixed time");
+            return;
+        }
+        setRunApp(true);
     };
 
     const updateFolderData = async (dirHandle: FileSystemDirectoryHandle) => {

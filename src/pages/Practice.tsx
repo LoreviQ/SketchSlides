@@ -17,7 +17,7 @@ import {
 import { BoltIcon } from "@heroicons/react/24/solid";
 
 import type { SelectedFolder } from "../types/preferences";
-import { fixedTimeToMS } from "../types/session";
+import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
 import { timerAlerts } from "../utils/alerts";
