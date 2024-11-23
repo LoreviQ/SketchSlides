@@ -17,7 +17,7 @@ import {
 import { BoltIcon } from "@heroicons/react/24/solid";
 
 import type { SelectedFolder } from "../types/preferences";
-import { SessionType } from "../types/session";
+import { CLASS_SESSION, SessionType } from "../types/session";
 import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
@@ -37,14 +37,31 @@ interface SlideshowProps {
 }
 export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, setRunApp }: SlideshowProps) {
     const { preferences } = usePreferences();
+
+    // Image display states
     const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
     const [orderIndex, setOrderIndex] = useState(0);
     const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
     const [showOverlay, toggleShowOverlay] = useToggle(false);
+
+    // Progress and interval timer states
     const [pause, togglePause] = useToggle(false);
     const [counter, setCounter] = useState(0);
-    const timeMS = fixedTimeToMS(preferences.fixedTime);
+    const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
+    const [sessionIntervals, setSessionIntervals] = useState<number[]>(() =>
+        preferences.sessionType === SessionType.Class ? CLASS_SESSION.toIntervals() : []
+    );
+
+    const getCurrentInterval = () => {
+        if (preferences.sessionType === SessionType.Class) {
+            return sessionIntervals[currentIntervalIndex];
+        }
+        return fixedTimeToMS(preferences.fixedTime);
+    };
+    const timeMS = getCurrentInterval();
     const TICKS_PER_SLIDE = timeMS / INTERVAL_MS;
+
+    // Window resizing states
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
 
@@ -53,6 +70,16 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
 
     // Move to the next image in the order
     const next = () => {
+        console.log(timeMS);
+        // Progress to the next interval if in class mode
+        if (preferences.sessionType === SessionType.Class) {
+            if (currentIntervalIndex + 1 >= sessionIntervals.length) {
+                setRunApp(false);
+                return;
+            }
+            setCurrentIntervalIndex(currentIntervalIndex + 1);
+        }
+
         if (orderIndex === imageOrder.length - 1) {
             setImageOrder((imageOrder) => {
                 const newOrder = [...imageOrder, ...generateRandomOrder(imageFiles.length)];
@@ -69,6 +96,10 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
     const prev = () => {
         if (orderIndex === 0) {
             return;
+        }
+        // Progress to the previous interval if in class mode
+        if (preferences.sessionType === SessionType.Class) {
+            setCurrentIntervalIndex((prev) => (prev - 1 < 0 ? sessionIntervals.length - 1 : prev - 1));
         }
         setOrderIndex(orderIndex - 1);
         setCounter(0);
