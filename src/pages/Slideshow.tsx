@@ -10,7 +10,6 @@ import {
     TrashIcon,
     SpeakerWaveIcon,
     SpeakerXMarkIcon,
-    Square2StackIcon,
     ArrowsRightLeftIcon,
     ClockIcon,
     ArrowsPointingInIcon,
@@ -343,16 +342,10 @@ function ButtonOverlay({
                         />
                     )}
                     {isStandalone && (
-                        <>
-                            <SlideshowButton
-                                Icon={Square2StackIcon}
-                                onClick={() => console.log("AOT button clicked")}
-                            />
-                            <SlideshowButton
-                                Icon={preferences.resizeWindow ? ArrowsPointingOutIcon : ArrowsPointingInIcon}
-                                onClick={() => updateResizeWindow(!preferences.resizeWindow)}
-                            />
-                        </>
+                        <SlideshowButton
+                            Icon={preferences.resizeWindow ? ArrowsPointingOutIcon : ArrowsPointingInIcon}
+                            onClick={() => updateResizeWindow(!preferences.resizeWindow)}
+                        />
                     )}
                     <SlideshowButton Icon={GridIcon} onClick={() => updateGrid(!preferences.grid)} />
                     <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={() => updateFlip(!preferences.flip)} />
