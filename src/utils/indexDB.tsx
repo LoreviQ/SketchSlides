@@ -1,4 +1,4 @@
-const DB_NAME = "DrawItDB";
+const DB_NAME = "FrameRateDB";
 const STORE_NAME = "handles";
 const DB_VERSION = 2;
 

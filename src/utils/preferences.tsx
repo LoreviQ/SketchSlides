@@ -1,7 +1,7 @@
 import type { UserPreferences } from "../types/preferences";
 import { DEFAULT_PREFERENCES } from "../types/preferences";
 
-export const PREFERENCES_KEY = "drawit-preferences";
+export const PREFERENCES_KEY = "framerate-preferences";
 
 export function savePreferences(preferences: UserPreferences): void {
     localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences));

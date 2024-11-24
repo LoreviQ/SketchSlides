@@ -11,20 +11,20 @@ export default defineConfig({
 		globPatterns: ['**/*.{js,css,html,png,svg}'], // Cache all relevant files
 	  },
 	  manifest: {
-		name: 'Draw It',
-		short_name: 'drawit',
+		name: 'FrameRate',
+		short_name: 'framerate',
 		start_url: '/',
 		display: 'standalone',
 		background_color: '#ffffff',
 		theme_color: '#000000',
 		icons: [
 			{
-				src: "/icons/drawit.png",
+				src: "/icons/framerate.png",
 				sizes: "1024x1024",
 				type: "image/png"
 			},
 			{
-				src: "/icons/drawit_small.png",
+				src: "/icons/framerate_small.png",
 				sizes: "144x144",
 				type: "image/png"
 			}
