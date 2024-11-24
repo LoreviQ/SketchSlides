@@ -302,6 +302,8 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: Sched
                     <IntervalGroupButton
                         key={index}
                         interval={interval}
+                        index={index}
+                        isDefault={tempSchedule.isDefault}
                         tempSchedule={tempSchedule}
                         setTempSchedule={setTempSchedule}
                     />
@@ -309,6 +311,8 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: Sched
                 {!tempSchedule.isDefault && (
                     <IntervalGroupButton
                         interval={null}
+                        index={null}
+                        isDefault={tempSchedule.isDefault}
                         tempSchedule={tempSchedule}
                         setTempSchedule={setTempSchedule}
                     />
