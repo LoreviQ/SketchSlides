@@ -13,6 +13,8 @@ import {
     Square2StackIcon,
     ArrowsRightLeftIcon,
     ClockIcon,
+    ArrowsPointingInIcon,
+    ArrowsPointingOutIcon,
 } from "@heroicons/react/24/outline";
 import { BoltIcon } from "@heroicons/react/24/solid";
 
@@ -25,6 +27,7 @@ import { useToggle } from "../utils/hooks";
 import { GridIcon } from "../assets/icons";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { useApp } from "../contexts/AppContext";
+import { ar } from "date-fns/locale";
 
 const INTERVAL_MS = 10;
 
@@ -171,7 +174,7 @@ export default function Slideshow({}) {
 
     // Resize the window to fit the image if standalone
     useEffect(() => {
-        if (isStandalone) {
+        if (isStandalone && preferences.resizeWindow) {
             isAutoResizing.current = true;
             if (resizeTimeoutId.current !== null) {
                 clearTimeout(resizeTimeoutId.current);
@@ -296,6 +299,9 @@ function ButtonOverlay({
     const updateFlip = preferenceUpdater("flip", updatePreferences);
     const updateGreyscale = preferenceUpdater("greyscale", updatePreferences);
     const updateTimer = preferenceUpdater("timer", updatePreferences);
+    const updateResizeWindow = preferenceUpdater("resizeWindow", updatePreferences);
+    const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
 
     // Alerts the user with information about the current image
     const showImageInfo = () => {
@@ -337,7 +343,18 @@ function ButtonOverlay({
                             onClick={() => updateMute(!preferences.mute)}
                         />
                     )}
-                    <SlideshowButton Icon={Square2StackIcon} onClick={() => console.log("AOT button clicked")} />
+                    {isStandalone && (
+                        <>
+                            <SlideshowButton
+                                Icon={Square2StackIcon}
+                                onClick={() => console.log("AOT button clicked")}
+                            />
+                            <SlideshowButton
+                                Icon={preferences.resizeWindow ? ArrowsPointingOutIcon : ArrowsPointingInIcon}
+                                onClick={() => updateResizeWindow(!preferences.resizeWindow)}
+                            />
+                        </>
+                    )}
                     <SlideshowButton Icon={GridIcon} onClick={() => updateGrid(!preferences.grid)} />
                     <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={() => updateFlip(!preferences.flip)} />
                     <SlideshowButton Icon={BoltIcon} onClick={() => updateGreyscale(!preferences.greyscale)} />
