@@ -90,12 +90,12 @@ export default function Settings({}) {
     return (
         <div className=" p-6 space-y-4">
             <h1 className="text-3xl font-bold text-center dark:text-white">DrawIt</h1>
-            <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="blue-600" />
+            <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
             <FolderDetails selectedFolder={selectedFolder} />
             <hr className="border-gray-300 dark:border-gray-700" />
             <SessionToggle />
             <SessionTypeCard />
-            <ActionButton onClick={runApp} label="Start" colour="green-600" />
+            <ActionButton onClick={runApp} label="Start" colour="bg-green-600" />
         </div>
     );
 }
@@ -321,7 +321,7 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: Sched
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">Total time: {tempSchedule.totalTimeString}</div>
             {!tempSchedule.isDefault && (
-                <ActionButton onClick={saveNewSchedule} label="Save Changes" colour="green-600/50" />
+                <ActionButton onClick={saveNewSchedule} label="Save Changes" colour="bg-green-600/50" />
             )}
         </div>
     );
