@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import type { SelectedFolder } from "../types/preferences";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { SessionType, FixedTime, CustomSchedule, IntervalGroup } from "../types/session";
@@ -90,8 +89,20 @@ export default function Settings({}) {
     return (
         <div className="w-screen flex justify-center px-6">
             <div className="w-full h-screen max-w-2xl p-6 flex flex-col space-y-4">
-                <h1 className="text-3xl font-bold text-center dark:text-white">FrameRate</h1>
-                <img src="/icons/framerate.png" alt="FrameRate Logo" className="mx-auto max-h-60" />
+                <div className="relative h-48 overflow-hidden">
+                    <div className="absolute inset-0 flex items-start">
+                        <img
+                            src="/icons/framerate.png"
+                            alt="FrameRate Logo"
+                            className="w-full object-cover opacity-50"
+                        />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <h1 className="pt-4 text-7xl font-bold text-center dark:text-white z-10 font-kalam text-stroke-1 text-stroke-black">
+                            FrameRate
+                        </h1>
+                    </div>
+                </div>
                 <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
                 <FolderDetails selectedFolder={selectedFolder} />
                 <hr className="border-gray-300 dark:border-gray-700" />
@@ -213,7 +224,7 @@ function ScheduleCard({}) {
     const schedules = preferences.schedules.map((schedule) => CustomSchedule.fromObject(schedule));
     const { selectedSchedule, setSelectedSchedule } = useApp();
     const [showDetails, setShowDetails] = useState(false);
-    const [isNarrowScreen, setIsNarrowScreen] = useState(false);
+    const [isNarrowScreen, setIsNarrowScreen] = useState(window.innerWidth < 768);
     useEffect(() => {
         setSelectedSchedule(schedules[0]);
         checkWidth();
