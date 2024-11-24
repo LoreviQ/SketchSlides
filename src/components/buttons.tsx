@@ -103,21 +103,12 @@ export function InputButton({
 }
 
 interface ScheduleButtonProps {
-    title: string;
-    timeString: string;
-    isDefault: boolean;
+    schedule: CustomSchedule;
     isSelected: boolean;
     setter: () => void;
     deleter: () => void;
 }
-export function ScheduleButton({
-    title,
-    timeString,
-    isDefault,
-    isSelected = false,
-    setter,
-    deleter,
-}: ScheduleButtonProps) {
+export function ScheduleButton({ isSelected = false, setter, deleter, schedule }: ScheduleButtonProps) {
     return (
         <div
             className={`w-full p-3 flex justify-between items-center text-left border rounded-lg  ${
@@ -126,10 +117,10 @@ export function ScheduleButton({
             onClick={setter}
         >
             <div>
-                <div>{title}</div>
-                <div className="text-sm text-gray-500">{timeString}</div>
+                <div>{schedule.title}</div>
+                <div className="text-sm text-gray-500">{schedule.totalTimeString}</div>
             </div>
-            {!isDefault && ( // Don't allow deleting the default schedule
+            {!schedule.isDefault && ( // Don't allow deleting the default schedule
                 <button
                     className="p-2 m-2 text-gray-500 hover:text-red-500 text-2xl rounded-full bg-transparent border-none outline-none focus:outline-none"
                     onClick={(e) => {

@@ -263,9 +263,7 @@ function ScheduleSelector({
                 {schedules.map((schedule, index) => (
                     <ScheduleButton
                         key={index}
-                        title={schedule.title}
-                        timeString={schedule.totalTimeString}
-                        isDefault={schedule.isDefault}
+                        schedule={schedule}
                         isSelected={selectedSchedule.equals(schedule)}
                         setter={() => setSelectedSchedule(schedule)}
                         deleter={() => deleteSchedule(index)}
