@@ -105,10 +105,19 @@ export function InputButton({
 interface ScheduleButtonProps {
     schedule: CustomSchedule;
     isSelected: boolean;
+    narrowMode?: boolean;
     setter: () => void;
     deleter: () => void;
+    editer?: () => void;
 }
-export function ScheduleButton({ isSelected = false, setter, deleter, schedule }: ScheduleButtonProps) {
+export function ScheduleButton({
+    schedule,
+    isSelected = false,
+    narrowMode,
+    setter,
+    deleter,
+    editer,
+}: ScheduleButtonProps) {
     return (
         <div
             className={`w-full p-3 flex justify-between items-center text-left border rounded-lg  ${
@@ -121,15 +130,29 @@ export function ScheduleButton({ isSelected = false, setter, deleter, schedule }
                 <div className="text-sm text-gray-500">{schedule.totalTimeString}</div>
             </div>
             {!schedule.isDefault && ( // Don't allow deleting the default schedule
-                <button
-                    className="p-2 m-2 text-gray-500 hover:text-red-500 text-2xl rounded-full bg-transparent border-none outline-none focus:outline-none"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        deleter();
-                    }}
-                >
-                    <XMarkIcon className="w-4 h-4" />
-                </button>
+                <div>
+                    {narrowMode && (
+                        <button
+                            className="p-2 m-2 text-gray-500 hover:text-yellow-500 text-2xl rounded-full bg-transparent border-none outline-none focus:outline-none"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setter();
+                                editer?.();
+                            }}
+                        >
+                            <PencilIcon className="w-4 h-4" />
+                        </button>
+                    )}
+                    <button
+                        className="p-2 m-2 text-gray-500 hover:text-red-500 text-2xl rounded-full bg-transparent border-none outline-none focus:outline-none"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            deleter();
+                        }}
+                    >
+                        <XMarkIcon className="w-4 h-4" />
+                    </button>
+                </div>
             )}
         </div>
     );

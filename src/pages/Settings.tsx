@@ -176,7 +176,7 @@ function FixedCard({}) {
     return (
         <>
             <h2 className="text-xl font-semibold dark:text-white">Fixed Time</h2>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
                 {Object.values(FixedTime).map((time) => {
                     if (time === FixedTime.Other) {
                         return (
@@ -212,9 +212,90 @@ function ScheduleCard({}) {
     const updateSchedules = preferenceUpdater("schedules", updatePreferences);
     const schedules = preferences.schedules.map((schedule) => CustomSchedule.fromObject(schedule));
     const { selectedSchedule, setSelectedSchedule } = useApp();
+    const [showDetails, setShowDetails] = useState(false);
+    const [isNarrowScreen, setIsNarrowScreen] = useState(false);
     useEffect(() => {
         setSelectedSchedule(schedules[0]);
+        checkWidth();
+        const handleResize = () => checkWidth();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    const checkWidth = () => {
+        setIsNarrowScreen(window.innerWidth < 768);
+    };
+    if (isNarrowScreen) {
+        return (
+            <ScheduleCardNarrow
+                schedules={schedules}
+                selectedSchedule={selectedSchedule}
+                setSelectedSchedule={setSelectedSchedule}
+                showDetails={showDetails}
+                setShowDetails={setShowDetails}
+                updateSchedules={updateSchedules}
+            />
+        );
+    }
+    return (
+        <ScheduleCardWide
+            schedules={schedules}
+            selectedSchedule={selectedSchedule}
+            setSelectedSchedule={setSelectedSchedule}
+            updateSchedules={updateSchedules}
+        />
+    );
+}
+interface ScheduleCardNarrowProps {
+    schedules: CustomSchedule[];
+    selectedSchedule: CustomSchedule;
+    setSelectedSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
+    showDetails: boolean;
+    setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
+    updateSchedules: (value: CustomSchedule[]) => void;
+}
+function ScheduleCardNarrow({
+    schedules,
+    selectedSchedule,
+    setSelectedSchedule,
+    showDetails,
+    setShowDetails,
+    updateSchedules,
+}: ScheduleCardNarrowProps) {
+    return (
+        <div className="w-full">
+            {!showDetails ? (
+                <ScheduleSelector
+                    schedules={schedules}
+                    selectedSchedule={selectedSchedule}
+                    setSelectedSchedule={setSelectedSchedule}
+                    updateSchedules={updateSchedules}
+                    onEdit={() => setShowDetails(true)}
+                    narrowMode={true}
+                />
+            ) : (
+                <ScheduleDetails
+                    schedules={schedules}
+                    selectedSchedule={selectedSchedule}
+                    updateSchedules={updateSchedules}
+                    onSave={() => setShowDetails(false)}
+                />
+            )}
+        </div>
+    );
+}
+interface ScheduleCardWideProps {
+    schedules: CustomSchedule[];
+    selectedSchedule: CustomSchedule;
+    setSelectedSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
+    updateSchedules: (value: CustomSchedule[]) => void;
+}
+function ScheduleCardWide({
+    schedules,
+    selectedSchedule,
+    setSelectedSchedule,
+    updateSchedules,
+}: ScheduleCardWideProps) {
     return (
         <div className="w-full grid grid-cols-2 gap-4">
             <ScheduleSelector
@@ -231,17 +312,22 @@ function ScheduleCard({}) {
         </div>
     );
 }
+
 interface ScheduleSelectorProps {
     schedules: CustomSchedule[];
     selectedSchedule: CustomSchedule;
     setSelectedSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
     updateSchedules: (value: CustomSchedule[]) => void;
+    onEdit?: () => void;
+    narrowMode?: boolean;
 }
 function ScheduleSelector({
     schedules,
     selectedSchedule,
     setSelectedSchedule,
     updateSchedules,
+    onEdit = () => {},
+    narrowMode = false,
 }: ScheduleSelectorProps) {
     const addNewSchedule = () => {
         const newSchedule = new CustomSchedule("Custom Schedule " + schedules.length, [new IntervalGroup(30000, 5)]);
@@ -259,15 +345,21 @@ function ScheduleSelector({
         }
     };
     return (
-        <div className="border-r border-gray-300 dark:border-gray-700 pr-4 space-y-4">
+        <div
+            className={`space-y-4
+            ${narrowMode ? "" : "pr-4 border-r border-gray-300 dark:border-gray-700"}
+        `}
+        >
             <div className="space-y-2">
                 {schedules.map((schedule, index) => (
                     <ScheduleButton
                         key={index}
                         schedule={schedule}
                         isSelected={selectedSchedule.equals(schedule)}
+                        narrowMode={narrowMode}
                         setter={() => setSelectedSchedule(schedule)}
                         deleter={() => deleteSchedule(index)}
+                        editer={() => onEdit()}
                     />
                 ))}
                 <div
@@ -286,8 +378,9 @@ interface ScheduleDetailsProps {
     schedules: CustomSchedule[];
     selectedSchedule: CustomSchedule;
     updateSchedules: (value: CustomSchedule[]) => void;
+    onSave?: () => void;
 }
-function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: ScheduleDetailsProps) {
+function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave }: ScheduleDetailsProps) {
     const [tempSchedule, setTempSchedule] = useState(selectedSchedule);
     const intervals = tempSchedule.intervals.map((interval) => IntervalGroup.fromObject(interval));
 
@@ -324,7 +417,14 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: Sched
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">Total time: {tempSchedule.totalTimeString}</div>
             {!tempSchedule.isDefault && (
-                <ActionButton onClick={saveNewSchedule} label="Save Changes" colour="bg-green-600/50" />
+                <ActionButton
+                    onClick={() => {
+                        saveNewSchedule();
+                        onSave?.();
+                    }}
+                    label="Save Changes"
+                    colour="bg-green-600/50"
+                />
             )}
         </div>
     );
