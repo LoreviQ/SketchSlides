@@ -27,7 +27,6 @@ import { useToggle } from "../utils/hooks";
 import { GridIcon } from "../assets/icons";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { useApp } from "../contexts/AppContext";
-import { ar } from "date-fns/locale";
 
 const INTERVAL_MS = 10;
 
