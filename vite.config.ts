@@ -35,6 +35,12 @@ export default defineConfig({
 				sizes: "2560x1440",
 				type: "image/png",
 				form_factor: "wide"
+			},
+			{
+				src: "/screenshots/mobile.png",
+				sizes: "1080x2400",
+				type: "image/png",
+				form_factor: "narrow"
 			}
 		],
 	  },

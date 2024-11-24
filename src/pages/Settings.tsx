@@ -91,7 +91,7 @@ export default function Settings({}) {
         <div className="w-screen flex justify-center px-6">
             <div className="w-full h-screen max-w-2xl p-6 flex flex-col space-y-4">
                 <h1 className="text-3xl font-bold text-center dark:text-white">FrameRate</h1>
-                <img src="/icons/FrameRate.png" alt="FrameRate Logo" className="mx-auto max-h-60" />
+                <img src="/icons/framerate.png" alt="FrameRate Logo" className="mx-auto max-h-60" />
                 <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
                 <FolderDetails selectedFolder={selectedFolder} />
                 <hr className="border-gray-300 dark:border-gray-700" />
