@@ -1,4 +1,5 @@
-import { SessionType, FixedTime, IntervalGroup, CustomSchedule } from "../types/session";
+import { useEffect, useState } from "react";
+
 import {
     XMarkIcon,
     PlusIcon,
@@ -7,7 +8,10 @@ import {
     ChevronDownIcon,
     PencilIcon,
     TrashIcon,
+    CheckIcon,
 } from "@heroicons/react/24/outline";
+
+import { SessionType, FixedTime, IntervalGroup, CustomSchedule } from "../types/session";
 
 interface ActionButtonProps {
     onClick: () => void;
@@ -142,17 +146,12 @@ export function ScheduleButton({
 interface IntervalGroupButtonProps {
     interval: IntervalGroup | null;
     index: number | null;
-    isDefault: boolean;
     tempSchedule: CustomSchedule;
     setTempSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
 }
-export function IntervalGroupButton({
-    interval,
-    index,
-    isDefault,
-    tempSchedule,
-    setTempSchedule,
-}: IntervalGroupButtonProps) {
+export function IntervalGroupButton({ interval, index, tempSchedule, setTempSchedule }: IntervalGroupButtonProps) {
+    const [isEditing, setIsEditing] = useState(false);
+    const [tempInterval, setTempInterval] = useState(interval);
     const newInterval = () => {
         const newInterval = new IntervalGroup(30000, 5);
         const newIntervals = [...tempSchedule.intervals, newInterval];
@@ -162,7 +161,10 @@ export function IntervalGroupButton({
         if (!interval || index === null) {
             return;
         }
-        if (index === 0) {
+        if (
+            (index === 0 && direction === "up") ||
+            (index === tempSchedule.intervals.length - 1 && direction === "down")
+        ) {
             return;
         }
         const increment = direction === "up" ? -1 : 1;
@@ -179,6 +181,18 @@ export function IntervalGroupButton({
         const newIntervals = tempSchedule.intervals.filter((_, i) => i !== index);
         setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
     };
+    const updateInterval = () => {
+        if (!tempInterval) {
+            return;
+        }
+        const newIntervals = [...tempSchedule.intervals];
+        newIntervals[index!] = tempInterval;
+        setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
+        setIsEditing(false);
+    };
+    useEffect(() => {
+        setIsEditing(false);
+    }, [tempSchedule]);
 
     if (!interval) {
         return (
@@ -192,6 +206,38 @@ export function IntervalGroupButton({
                 <div className="flex justify-center p-3  hover:bg-gray-800">
                     <BellSnoozeIcon className="w-4 h-4" />
                 </div>
+            </div>
+        );
+    }
+    if (isEditing) {
+        if (!tempInterval) {
+            return <p>Error: interval is null</p>;
+        }
+        return (
+            <div className="grid grid-cols-8 border border-gray-700 text-white">
+                <input
+                    type="number"
+                    value={tempInterval.count}
+                    onChange={(e) => setTempInterval(new IntervalGroup(tempInterval.interval, Number(e.target.value)))}
+                    className="p-3 text-start col-span-2 bg-transparent"
+                    placeholder={tempInterval.count.toString()}
+                />
+                <p className="p-3 text-start col-span-1">x</p>
+                <input
+                    type="number"
+                    value={tempInterval.interval / 1000}
+                    onChange={(e) =>
+                        setTempInterval(new IntervalGroup(Number(e.target.value) * 1000, tempInterval.count))
+                    }
+                    className="p-3 text-start col-span-3 bg-transparent"
+                    placeholder={(tempInterval.interval / 1000).toString()}
+                />
+                <button
+                    className="bg-transparent col-span-2 hover:bg-green-600/50 rounded-none relative"
+                    onClick={updateInterval}
+                >
+                    <CheckIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                </button>
             </div>
         );
     }
@@ -216,7 +262,10 @@ export function IntervalGroupButton({
                             <ChevronDownIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                         </button>
                     </div>
-                    <button className="bg-transparent hover:bg-yellow-400/50 rounded-none relative">
+                    <button
+                        className="bg-transparent hover:bg-yellow-400/50 rounded-none relative"
+                        onClick={() => setIsEditing(true)}
+                    >
                         <PencilIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                     </button>
                     <button
