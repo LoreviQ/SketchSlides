@@ -14,16 +14,11 @@ import {
 import { formatFileSize } from "../utils/formatters";
 import { saveLastFolder, getLastFolder } from "../utils/indexDB";
 import { sessionTypeToDescription } from "../utils/session";
+import { useApp } from "../contexts/AppContext";
 
-interface SettingsProps {
-    selectedFolder: null | SelectedFolder;
-    setSelectedFolder: React.Dispatch<React.SetStateAction<null | SelectedFolder>>;
-    setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
-    setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
-}
-export default function Settings({ selectedFolder, setSelectedFolder, setImageFiles, setRunApp }: SettingsProps) {
+export default function Settings({}) {
     const { preferences } = usePreferences();
-
+    const { selectedFolder, setSelectedFolder, setImageFiles, setRunApp } = useApp();
     const runApp = () => {
         if (!selectedFolder) {
             alert("Please select a folder first");
@@ -213,7 +208,10 @@ function ScheduleCard({}) {
     const { preferences, updatePreferences } = usePreferences();
     const updateSchedules = preferenceUpdater("schedules", updatePreferences);
     const schedules = preferences.schedules.map((schedule) => CustomSchedule.fromObject(schedule));
-    const [selectedSchedule, setSelectedSchedule] = useState(schedules[0]);
+    const { selectedSchedule, setSelectedSchedule } = useApp();
+    useEffect(() => {
+        setSelectedSchedule(schedules[0]);
+    }, []);
     return (
         <div className="w-full grid grid-cols-2 gap-4">
             <ScheduleSelector

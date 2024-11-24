@@ -16,7 +16,6 @@ import {
 } from "@heroicons/react/24/outline";
 import { BoltIcon } from "@heroicons/react/24/solid";
 
-import type { SelectedFolder } from "../types/preferences";
 import { DEFAULT_SCHEDULE, SessionType } from "../types/session";
 import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
@@ -24,19 +23,14 @@ import { ImageGrid, ProgressBar } from "../components/slideshow";
 import { timerAlerts } from "../utils/alerts";
 import { useToggle } from "../utils/hooks";
 import { GridIcon } from "../assets/icons";
-
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
+import { useApp } from "../contexts/AppContext";
 
 const INTERVAL_MS = 10;
 
-interface SlideshowProps {
-    selectedFolder: SelectedFolder;
-    imageFiles: File[];
-    setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
-    setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
-}
-export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, setRunApp }: SlideshowProps) {
+export default function Slideshow({}) {
     const { preferences } = usePreferences();
+    const { selectedFolder, imageFiles, setImageFiles, setRunApp } = useApp();
 
     // Image display variables
     const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
@@ -114,7 +108,7 @@ export default function Slideshow({ selectedFolder, imageFiles, setImageFiles, s
 
         try {
             // Get file handle from the directory handle
-            await selectedFolder.dirHandle.removeEntry(currentFile.name);
+            await selectedFolder!.dirHandle.removeEntry(currentFile.name);
 
             // Update app state
             const newImageFiles = [...imageFiles];
