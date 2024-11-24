@@ -30,6 +30,6 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
     grid: false,
     flip: false,
     greyscale: false,
-    timer: false,
+    timer: true,
     customFixedTime: null,
 };
