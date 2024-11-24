@@ -166,7 +166,7 @@ function SessionTypeCard({}) {
             cardContent = <ScheduleCard />;
             break;
     }
-    return <div className="flex-grow overflow-y-auto space-y-4 flex flex-col min-h-20">{cardContent}</div>;
+    return <div className="overflow-y-auto space-y-4 flex flex-col min-h-20">{cardContent}</div>;
 }
 
 function FixedCard({}) {
