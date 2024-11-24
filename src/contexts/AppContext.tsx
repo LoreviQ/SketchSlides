@@ -19,7 +19,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const [selectedFolder, setSelectedFolder] = useState<null | SelectedFolder>(null);
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [runApp, setRunApp] = useState(false);
-    const [selectedSchedule, setSelectedSchedule] = useState(CustomSchedule.fromObject(DEFAULT_SCHEDULE));
+    const [selectedSchedule, setSelectedSchedule] = useState(DEFAULT_SCHEDULE);
     return (
         <AppContext.Provider
             value={{
