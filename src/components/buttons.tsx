@@ -16,12 +16,12 @@ import { SessionType, FixedTime, IntervalGroup, CustomSchedule } from "../types/
 interface ActionButtonProps {
     onClick: () => void;
     label: string;
-    colour: "blue" | "green";
+    colour: string;
 }
 export function ActionButton({ onClick, label, colour }: ActionButtonProps) {
     return (
         <button
-            className={`w-full py-2 px-4 bg-${colour}-600 text-white rounded-lg hover:bg-${colour}-700 transition`}
+            className={`w-full py-2 px-4 bg-${colour} text-white rounded-lg hover:bg-${colour}-700 transition`}
             onClick={onClick}
         >
             {label}
@@ -144,23 +144,54 @@ export function ScheduleButton({
     );
 }
 interface IntervalGroupButtonProps {
-    interval: IntervalGroup | null;
-    index: number | null;
+    interval: IntervalGroup;
+    index: number;
     tempSchedule: CustomSchedule;
     setTempSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
 }
 export function IntervalGroupButton({ interval, index, tempSchedule, setTempSchedule }: IntervalGroupButtonProps) {
     const [isEditing, setIsEditing] = useState(false);
-    const [tempInterval, setTempInterval] = useState(interval);
-    const newInterval = () => {
-        const newInterval = new IntervalGroup(30000, 5);
-        const newIntervals = [...tempSchedule.intervals, newInterval];
-        setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
-    };
+    useEffect(() => {
+        setIsEditing(false);
+    }, [tempSchedule]);
+
+    if (isEditing) {
+        return (
+            <IntervalButtonEditableContent
+                interval={interval}
+                index={index}
+                tempSchedule={tempSchedule}
+                setTempSchedule={setTempSchedule}
+                setIsEditing={setIsEditing}
+            />
+        );
+    }
+    return (
+        <IntervalButtonContent
+            interval={interval}
+            index={index}
+            tempSchedule={tempSchedule}
+            setTempSchedule={setTempSchedule}
+            setIsEditing={setIsEditing}
+        />
+    );
+}
+
+interface IntervalButtonContentProps {
+    interval: IntervalGroup;
+    index: number;
+    tempSchedule: CustomSchedule;
+    setTempSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
+    setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+}
+function IntervalButtonContent({
+    interval,
+    index,
+    tempSchedule,
+    setTempSchedule,
+    setIsEditing,
+}: IntervalButtonContentProps) {
     const moveInterval = (direction: "up" | "down") => {
-        if (!interval || index === null) {
-            return;
-        }
         if (
             (index === 0 && direction === "up") ||
             (index === tempSchedule.intervals.length - 1 && direction === "down")
@@ -175,72 +206,9 @@ export function IntervalGroupButton({ interval, index, tempSchedule, setTempSche
         setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
     };
     const deleteInterval = () => {
-        if (!interval) {
-            return;
-        }
         const newIntervals = tempSchedule.intervals.filter((_, i) => i !== index);
         setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
     };
-    const updateInterval = () => {
-        if (!tempInterval) {
-            return;
-        }
-        const newIntervals = [...tempSchedule.intervals];
-        newIntervals[index!] = tempInterval;
-        setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
-        setIsEditing(false);
-    };
-    useEffect(() => {
-        setIsEditing(false);
-    }, [tempSchedule]);
-
-    if (!interval) {
-        return (
-            <div
-                className="grid grid-cols-2 border
-             border-gray-700  text-white"
-            >
-                <div onClick={newInterval} className="flex justify-center p-3  hover:bg-gray-800">
-                    <PlusIcon className="w-4 h-4" />
-                </div>
-                <div className="flex justify-center p-3  hover:bg-gray-800">
-                    <BellSnoozeIcon className="w-4 h-4" />
-                </div>
-            </div>
-        );
-    }
-    if (isEditing) {
-        if (!tempInterval) {
-            return <p>Error: interval is null</p>;
-        }
-        return (
-            <div className="grid grid-cols-8 border border-gray-700 text-white">
-                <input
-                    type="number"
-                    value={tempInterval.count}
-                    onChange={(e) => setTempInterval(new IntervalGroup(tempInterval.interval, Number(e.target.value)))}
-                    className="p-3 text-start col-span-2 bg-transparent"
-                    placeholder={tempInterval.count.toString()}
-                />
-                <p className="p-3 text-start col-span-1">x</p>
-                <input
-                    type="number"
-                    value={tempInterval.interval / 1000}
-                    onChange={(e) =>
-                        setTempInterval(new IntervalGroup(Number(e.target.value) * 1000, tempInterval.count))
-                    }
-                    className="p-3 text-start col-span-3 bg-transparent"
-                    placeholder={(tempInterval.interval / 1000).toString()}
-                />
-                <button
-                    className="bg-transparent col-span-2 hover:bg-green-600/50 rounded-none relative"
-                    onClick={updateInterval}
-                >
-                    <CheckIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                </button>
-            </div>
-        );
-    }
     return (
         <div className="grid grid-cols-8 border border-gray-700 text-white">
             <p className="p-3 text-start col-span-1">{interval.count}</p>
@@ -276,6 +244,79 @@ export function IntervalGroupButton({ interval, index, tempSchedule, setTempSche
                     </button>
                 </>
             )}
+        </div>
+    );
+}
+
+interface IntervalButtonEditableContentProps {
+    interval: IntervalGroup;
+    index: number;
+    tempSchedule: CustomSchedule;
+    setTempSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
+    setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+}
+function IntervalButtonEditableContent({
+    interval,
+    index,
+    tempSchedule,
+    setTempSchedule,
+    setIsEditing,
+}: IntervalButtonEditableContentProps) {
+    const [tempInterval, setTempInterval] = useState(interval);
+    const updateInterval = () => {
+        const newIntervals = [...tempSchedule.intervals];
+        newIntervals[index!] = tempInterval;
+        setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
+        setIsEditing(false);
+    };
+    return (
+        <div className="grid grid-cols-8 border border-gray-700 text-white">
+            <input
+                type="number"
+                value={tempInterval.count}
+                onChange={(e) => setTempInterval(new IntervalGroup(tempInterval.interval, Number(e.target.value)))}
+                className="p-3 text-start col-span-2 bg-transparent"
+                placeholder={tempInterval.count.toString()}
+            />
+            <p className="p-3 text-start col-span-1">x</p>
+            <input
+                type="number"
+                value={tempInterval.interval / 1000}
+                onChange={(e) => setTempInterval(new IntervalGroup(Number(e.target.value) * 1000, tempInterval.count))}
+                className="p-3 text-start col-span-2 bg-transparent"
+                placeholder={(tempInterval.interval / 1000).toString()}
+            />
+            <button
+                className="bg-transparent col-span-3 hover:bg-green-600/50 rounded-none relative"
+                onClick={updateInterval}
+            >
+                <CheckIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            </button>
+        </div>
+    );
+}
+
+interface NewIntervalButtonProps {
+    tempSchedule: CustomSchedule;
+    setTempSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
+}
+export function NewIntervalButton({ tempSchedule, setTempSchedule }: NewIntervalButtonProps) {
+    const newInterval = () => {
+        const newInterval = new IntervalGroup(30000, 5);
+        const newIntervals = [...tempSchedule.intervals, newInterval];
+        setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
+    };
+    return (
+        <div
+            className="grid grid-cols-2 border
+                 border-gray-700  text-white"
+        >
+            <div onClick={newInterval} className="flex justify-center p-3  hover:bg-gray-800">
+                <PlusIcon className="w-4 h-4" />
+            </div>
+            <div className="flex justify-center p-3  hover:bg-gray-800">
+                <BellSnoozeIcon className="w-4 h-4" />
+            </div>
         </div>
     );
 }

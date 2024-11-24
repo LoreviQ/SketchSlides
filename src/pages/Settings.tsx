@@ -3,7 +3,14 @@ import { useEffect, useState } from "react";
 import type { SelectedFolder } from "../types/preferences";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { SessionType, FixedTime, CustomSchedule, IntervalGroup } from "../types/session";
-import { ToggleButton, InputButton, ActionButton, ScheduleButton, IntervalGroupButton } from "../components/buttons";
+import {
+    ToggleButton,
+    InputButton,
+    ActionButton,
+    ScheduleButton,
+    IntervalGroupButton,
+    NewIntervalButton,
+} from "../components/buttons";
 import { formatFileSize } from "../utils/formatters";
 import { saveLastFolder, getLastFolder } from "../utils/indexDB";
 import { sessionTypeToDescription } from "../utils/session";
@@ -88,12 +95,12 @@ export default function Settings({ selectedFolder, setSelectedFolder, setImageFi
     return (
         <div className="w-full max-w-2xl p-6 space-y-4">
             <h1 className="text-3xl font-bold text-center dark:text-white">DrawIt</h1>
-            <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="blue" />
+            <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="blue-600" />
             <FolderDetails selectedFolder={selectedFolder} />
             <hr className="border-gray-300 dark:border-gray-700" />
             <SessionToggle />
             <SessionTypeCard />
-            <ActionButton onClick={runApp} label="Start" colour="green" />
+            <ActionButton onClick={runApp} label="Start" colour="green-600" />
         </div>
     );
 }
@@ -284,6 +291,11 @@ interface ScheduleDetailsProps {
 function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: ScheduleDetailsProps) {
     const [tempSchedule, setTempSchedule] = useState(selectedSchedule);
     const intervals = tempSchedule.intervals.map((interval) => IntervalGroup.fromObject(interval));
+
+    const saveNewSchedule = () => {
+        schedules[schedules.findIndex((s) => s.equals(selectedSchedule))] = tempSchedule;
+        updateSchedules(schedules);
+    };
     useEffect(() => {
         setTempSchedule(selectedSchedule);
     }, [selectedSchedule]);
@@ -308,15 +320,13 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: Sched
                     />
                 ))}
                 {!tempSchedule.isDefault && (
-                    <IntervalGroupButton
-                        interval={null}
-                        index={null}
-                        tempSchedule={tempSchedule}
-                        setTempSchedule={setTempSchedule}
-                    />
+                    <NewIntervalButton tempSchedule={tempSchedule} setTempSchedule={setTempSchedule} />
                 )}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">Total time: {tempSchedule.totalTimeString}</div>
+            {!tempSchedule.isDefault && (
+                <ActionButton onClick={saveNewSchedule} label="Save Changes" colour="green-600/50" />
+            )}
         </div>
     );
 }
