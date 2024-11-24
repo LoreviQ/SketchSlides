@@ -237,10 +237,7 @@ export default function Slideshow({}) {
     }, []);
 
     return (
-        <div
-            onClick={toggleShowOverlay}
-            className="flex justify-center items-center h-screen bg-black overflow-hidden relative"
-        >
+        <div onClick={toggleShowOverlay} className="flex justify-center items-center h-screen overflow-hidden relative">
             <img
                 src={currentImageUrl}
                 alt={`Image ${imageOrder[orderIndex] + 1}`}
