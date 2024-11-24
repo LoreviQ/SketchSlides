@@ -224,10 +224,10 @@ function IntervalButtonContent({
         setTempSchedule(new CustomSchedule(tempSchedule.title, newIntervals));
     };
     return (
-        <div className="grid grid-cols-8 border border-gray-700 text-white">
+        <div className="grid grid-cols-7 border border-gray-700 text-white">
             <p className="p-3 text-start col-span-1">{interval.count}</p>
             <p className="p-3 text-start col-span-1">x</p>
-            <p className="p-3 text-start col-span-3">{interval.timeString()}</p>
+            <p className="p-3 text-start col-span-2">{interval.timeString()}</p>
             {!tempSchedule.isDefault && (
                 <>
                     <div className="flex flex-col">
@@ -284,7 +284,7 @@ function IntervalButtonEditableContent({
         setIsEditing(false);
     };
     return (
-        <div className="grid grid-cols-8 border border-gray-700 text-white">
+        <div className="grid grid-cols-7 border border-gray-700 text-white">
             <input
                 type="number"
                 value={tempInterval.count}
@@ -301,7 +301,7 @@ function IntervalButtonEditableContent({
                 placeholder={(tempInterval.interval / 1000).toString()}
             />
             <button
-                className="bg-transparent col-span-3 hover:bg-green-600/50 rounded-none relative"
+                className="bg-transparent col-span-2 hover:bg-green-600/50 rounded-none relative"
                 onClick={updateInterval}
             >
                 <CheckIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
