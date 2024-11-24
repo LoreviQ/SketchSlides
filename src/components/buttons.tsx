@@ -1,5 +1,13 @@
 import { SessionType, FixedTime, IntervalGroup, CustomSchedule } from "../types/session";
-import { XMarkIcon, PlusIcon, BellSnoozeIcon } from "@heroicons/react/24/outline";
+import {
+    XMarkIcon,
+    PlusIcon,
+    BellSnoozeIcon,
+    ChevronUpIcon,
+    ChevronDownIcon,
+    PencilIcon,
+    TrashIcon,
+} from "@heroicons/react/24/outline";
 
 interface ActionButtonProps {
     onClick: () => void;
@@ -159,9 +167,23 @@ export function IntervalGroupButton({ interval, tempSchedule, setTempSchedule }:
         );
     }
     return (
-        <div className="grid grid-cols-3 text-start space-x-1 p-3 border border-gray-700 text-white">
-            <p>{interval.count} x</p>
-            <p>{interval.timeString()}</p>
+        <div className="grid grid-cols-8 border border-gray-700 text-white">
+            <p className="p-3 text-start col-span-2">{interval.count} x</p>
+            <p className="p-3 text-start col-span-3">{interval.timeString()}</p>
+            <div className="flex flex-col">
+                <button className="h-1/2 bg-transparent hover:bg-green-600/50 rounded-none relative">
+                    <ChevronUpIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                </button>
+                <button className="h-1/2 bg-transparent hover:bg-green-600/50 rounded-none relative">
+                    <ChevronDownIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                </button>
+            </div>
+            <button className="bg-transparent hover:bg-yellow-400/50 rounded-none relative">
+                <PencilIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            </button>
+            <button className="bg-transparent hover:bg-red-600/50 rounded-none relative">
+                <TrashIcon className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            </button>
         </div>
     );
 }

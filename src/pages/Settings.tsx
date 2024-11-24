@@ -306,7 +306,13 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules }: Sched
                         setTempSchedule={setTempSchedule}
                     />
                 ))}
-                <IntervalGroupButton interval={null} tempSchedule={tempSchedule} setTempSchedule={setTempSchedule} />
+                {!tempSchedule.isDefault && (
+                    <IntervalGroupButton
+                        interval={null}
+                        tempSchedule={tempSchedule}
+                        setTempSchedule={setTempSchedule}
+                    />
+                )}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">Total time: {tempSchedule.totalTimeString}</div>
         </div>
