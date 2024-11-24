@@ -61,6 +61,8 @@ export default function Slideshow({}) {
 
     const maxWidthRef = useRef<number>(window.innerWidth);
     const maxHeightRef = useRef<number>(window.innerHeight);
+    const isAutoResizing = useRef(false);
+    const resizeTimeoutId = useRef<number | null>(null);
 
     // Move to the next image in the order
     const next = () => {
@@ -170,7 +172,15 @@ export default function Slideshow({}) {
     // Resize the window to fit the image if standalone
     useEffect(() => {
         if (isStandalone) {
+            isAutoResizing.current = true;
+            if (resizeTimeoutId.current !== null) {
+                clearTimeout(resizeTimeoutId.current);
+            }
             resizeWindow(currentImageUrl, maxWidthRef.current, maxHeightRef.current);
+            resizeTimeoutId.current = setTimeout(() => {
+                isAutoResizing.current = false;
+                resizeTimeoutId.current = null;
+            }, 100);
         }
     }, [currentImageUrl, isStandalone]);
 
@@ -211,15 +221,15 @@ export default function Slideshow({}) {
         };
     }, [orderIndex, pause, preferences.mute]);
 
+    // Saves new max dims when user resizes window
     useEffect(() => {
-        // Set up resize handler
         const handleResize = () => {
-            maxWidthRef.current = window.innerWidth;
-            maxHeightRef.current = window.innerHeight;
+            if (!isAutoResizing.current) {
+                maxWidthRef.current = window.innerWidth;
+                maxHeightRef.current = window.innerHeight;
+            }
         };
         window.addEventListener("resize", handleResize);
-
-        // Cleanup function
         return () => {
             window.removeEventListener("resize", handleResize);
         };
@@ -369,15 +379,17 @@ function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
         const adjustedWidth = newWidth + browserUIWidth;
         const adjustedHeight = newHeight + browserUIHeight;
 
-        // Move the window so the resize is centered
+        // Resize the window
+        window.resizeTo(adjustedWidth, adjustedHeight);
+
+        // Reposition the window so the resize is centered
+        /*
         const currentLeft = window.screenX;
         const currentTop = window.screenY;
         const newLeft = currentLeft - (adjustedWidth - window.innerWidth) / 2;
         const newTop = currentTop - (adjustedHeight - window.innerHeight) / 2;
-
-        // Resize and reposition the window
-        window.resizeTo(adjustedWidth, adjustedHeight);
         window.moveTo(newLeft, newTop);
+        */
     };
 }
 

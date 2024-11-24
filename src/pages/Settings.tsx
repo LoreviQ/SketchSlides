@@ -89,8 +89,9 @@ export default function Settings({}) {
 
     return (
         <div className="w-screen flex justify-center px-6">
-            <div className="w-full max-w-2xl p-6 space-y-4">
-                <h1 className="text-3xl font-bold text-center dark:text-white">DrawIt</h1>
+            <div className="w-full h-screen max-w-2xl p-6 flex flex-col space-y-4">
+                <h1 className="text-3xl font-bold text-center dark:text-white">FrameRate</h1>
+                <img src="/icons/drawit.png" alt="DrawIt Logo" className="mx-auto max-h-60" />
                 <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
                 <FolderDetails selectedFolder={selectedFolder} />
                 <hr className="border-gray-300 dark:border-gray-700" />
@@ -165,7 +166,7 @@ function SessionTypeCard({}) {
             cardContent = <ScheduleCard />;
             break;
     }
-    return <div className="space-y-4 flex flex-col">{cardContent}</div>;
+    return <div className="flex-grow overflow-y-auto space-y-4 flex flex-col min-h-20">{cardContent}</div>;
 }
 
 function FixedCard({}) {
