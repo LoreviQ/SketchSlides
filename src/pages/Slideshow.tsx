@@ -16,7 +16,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { BoltIcon } from "@heroicons/react/24/solid";
 
-import { DEFAULT_SCHEDULE, SessionType } from "../types/session";
+import { SessionType } from "../types/session";
 import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
@@ -30,7 +30,7 @@ const INTERVAL_MS = 10;
 
 export default function Slideshow({}) {
     const { preferences } = usePreferences();
-    const { selectedFolder, imageFiles, setImageFiles, setRunApp } = useApp();
+    const { selectedFolder, imageFiles, setImageFiles, setRunApp, selectedSchedule } = useApp();
 
     // Image display variables
     const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
@@ -42,8 +42,8 @@ export default function Slideshow({}) {
     const [pause, togglePause] = useToggle(false);
     const [counter, setCounter] = useState(0);
     const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
-    const [sessionIntervals, setSessionIntervals] = useState<number[]>(() =>
-        preferences.sessionType === SessionType.Schedule ? DEFAULT_SCHEDULE.toIntervals() : []
+    const [sessionIntervals, _] = useState<number[]>(() =>
+        preferences.sessionType === SessionType.Schedule ? selectedSchedule.toIntervals() : []
     );
 
     const getCurrentInterval = () => {

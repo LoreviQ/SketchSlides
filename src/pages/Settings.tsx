@@ -88,7 +88,7 @@ export default function Settings({}) {
     }, []);
 
     return (
-        <div className="w-full max-w-2xl p-6 space-y-4">
+        <div className=" p-6 space-y-4">
             <h1 className="text-3xl font-bold text-center dark:text-white">DrawIt</h1>
             <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="blue-600" />
             <FolderDetails selectedFolder={selectedFolder} />
@@ -163,7 +163,7 @@ function SessionTypeCard({}) {
             cardContent = <ScheduleCard />;
             break;
     }
-    return <div className="min-w-[524px] min-h-[360px] space-y-4 flex flex-col">{cardContent}</div>;
+    return <div className="space-y-4 flex flex-col">{cardContent}</div>;
 }
 
 function FixedCard({}) {
