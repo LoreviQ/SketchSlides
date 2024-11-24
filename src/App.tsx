@@ -15,7 +15,9 @@ function AppContent() {
 export default function App() {
     return (
         <AppProvider>
-            <AppContent />
+            <div className="bg-custom-dark">
+                <AppContent />
+            </div>
         </AppProvider>
     );
 }

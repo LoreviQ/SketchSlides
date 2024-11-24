@@ -6,6 +6,9 @@ export default {
     ],
     theme: {
         extend: {
+            colors: {
+                "custom-dark": "#222124",
+            },
             fontFamily: {
                 sans: [
                     "Inter",

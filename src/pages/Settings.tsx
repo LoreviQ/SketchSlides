@@ -165,9 +165,11 @@ function FolderDetails({ selectedFolder }: { selectedFolder: SelectedFolder | nu
 function SessionTypeCard({}) {
     const { preferences } = usePreferences();
     let cardContent = (
-        <p className="text-white whitespace-pre-line text-center">
-            {sessionTypeToDescription(preferences.sessionType)}
-        </p>
+        <div className="flex flex-col h-full items-center justify-center">
+            <p className="text-white whitespace-pre-line text-center">
+                {sessionTypeToDescription(preferences.sessionType)}
+            </p>
+        </div>
     );
     switch (preferences.sessionType) {
         case SessionType.Fixed:
@@ -177,7 +179,7 @@ function SessionTypeCard({}) {
             cardContent = <ScheduleCard />;
             break;
     }
-    return <div className="overflow-y-auto space-y-4 flex flex-col min-h-20">{cardContent}</div>;
+    return <div className="overflow-y-auto space-y-4 flex flex-col min-h-24">{cardContent}</div>;
 }
 
 function FixedCard({}) {
@@ -186,7 +188,7 @@ function FixedCard({}) {
     const updateCustomFixedTime = preferenceUpdater("customFixedTime", updatePreferences);
     return (
         <>
-            <h2 className="text-xl font-semibold dark:text-white">Fixed Time</h2>
+            <h2 className="text-xl font-semibold dark:text-white">Fixed Intervals</h2>
             <div className="flex flex-wrap gap-2">
                 {Object.values(FixedTime).map((time) => {
                     if (time === FixedTime.Other) {
@@ -361,6 +363,7 @@ function ScheduleSelector({
             ${narrowMode ? "" : "pr-4 border-r border-gray-300 dark:border-gray-700"}
         `}
         >
+            <h2 className="text-xl font-semibold dark:text-white">Scheduled Intervals</h2>
             <div className="space-y-2">
                 {schedules.map((schedule, index) => (
                     <ScheduleButton
@@ -409,7 +412,7 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave 
                     value={tempSchedule.title}
                     onChange={(e) => setTempSchedule(new CustomSchedule(e.target.value, intervals))}
                     disabled={tempSchedule.isDefault}
-                    className="text-lg font-medium text-white bg-transparent border-none outline-none focus:outline-none text-center"
+                    className="text-xl font-medium text-white bg-transparent border-none outline-none focus:outline-none text-center"
                 />
             </div>
             <div className="">
