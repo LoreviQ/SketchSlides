@@ -17,6 +17,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { BoltIcon } from "@heroicons/react/24/solid";
 
+import type { SelectedFolder } from "../types/preferences";
 import { SessionType } from "../types/session";
 import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
@@ -102,6 +103,10 @@ export default function Slideshow({}) {
     };
 
     const deleteCurrentFile = async (): Promise<boolean> => {
+        if (!selectedFolder?.dirHandle) {
+            console.error("Cannot delete file: directory handle is null");
+            return false;
+        }
         const currentFile = imageFiles[imageOrder[orderIndex]];
         const deletedValue = imageOrder[orderIndex];
 
@@ -254,6 +259,7 @@ export default function Slideshow({}) {
                     orderIndex={orderIndex}
                     imageOrder={imageOrder}
                     imageFiles={imageFiles}
+                    selectedFolder={selectedFolder}
                     pause={pause}
                     togglePause={togglePause}
                     setRunApp={setRunApp}
@@ -270,6 +276,7 @@ interface ButtonOverlayProps {
     orderIndex: number;
     imageOrder: number[];
     imageFiles: File[];
+    selectedFolder: SelectedFolder | null;
     pause: boolean;
     togglePause: () => void;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
@@ -281,6 +288,7 @@ function ButtonOverlay({
     orderIndex,
     imageOrder,
     imageFiles,
+    selectedFolder,
     pause,
     togglePause,
     setRunApp,
@@ -297,6 +305,7 @@ function ButtonOverlay({
     const updateResizeWindow = preferenceUpdater("resizeWindow", updatePreferences);
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+    const hasDirectoryAccess = "showDirectoryPicker" in window && selectedFolder?.dirHandle;
 
     // Alerts the user with information about the current image
     const showImageInfo = () => {
@@ -323,21 +332,25 @@ function ButtonOverlay({
                 <div className="flex justify-center space-x-4 pt-12 pb-2">
                     <SlideshowButton Icon={XMarkIcon} onClick={() => setRunApp(false)} />
                     <SlideshowButton Icon={InformationCircleIcon} onClick={showImageInfo} />
-                    <SlideshowButton
-                        Icon={TrashIcon}
-                        onClick={async () => {
-                            const success = await deleteCurrentFile();
-                            if (success) {
-                                next();
-                            }
-                        }}
-                    />
+                    {/* Delete functionality is only supported via the showDirectoryPicker API */}
+                    {hasDirectoryAccess && (
+                        <SlideshowButton
+                            Icon={TrashIcon}
+                            onClick={async () => {
+                                const success = await deleteCurrentFile();
+                                if (success) {
+                                    next();
+                                }
+                            }}
+                        />
+                    )}
                     {preferences.sessionType != SessionType.Relaxed && (
                         <SlideshowButton
                             Icon={preferences.mute ? SpeakerXMarkIcon : SpeakerWaveIcon}
                             onClick={() => updateMute(!preferences.mute)}
                         />
                     )}
+                    {/* Resize functionality is only supported in standalone mode */}
                     {isStandalone && (
                         <SlideshowButton
                             Icon={preferences.resizeWindow ? ArrowsPointingOutIcon : ArrowsPointingInIcon}

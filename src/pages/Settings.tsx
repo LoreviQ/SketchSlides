@@ -47,15 +47,14 @@ export default function Settings({}) {
         setImageFiles(files);
     };
 
+    // Uses the showDirectoryPicker API to select a folder
     const handleFolderSelect = async () => {
-        // Check if the API is supported
         if (!("showDirectoryPicker" in window)) {
-            alert(
-                "Folder selection is not yet implemented for your browser/OS. Please use a Chromium-based browser on desktop."
+            console.error(
+                "Cannot select folder since the showDirectoryPicker API is not supported in your browser/OS."
             );
             return;
         }
-
         try {
             const dirHandle = await window.showDirectoryPicker();
             await updateFolderData(dirHandle);
@@ -66,6 +65,34 @@ export default function Settings({}) {
                 alert("An error occurred while selecting the folder");
             }
         }
+    };
+
+    // Uses the file input element to select files, used as a fallback for browsers that don't support the showDirectoryPicker API
+    const handleFileSelect = async () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.multiple = true;
+        input.accept = "image/*";
+
+        input.onchange = async (e: Event) => {
+            const target = e.target as HTMLInputElement;
+            const files = Array.from(target.files || []).filter((file) => file.type.startsWith("image/"));
+
+            if (files.length === 0) {
+                alert("No image files selected");
+                return;
+            }
+
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            setSelectedFolder({
+                name: "Selected Files",
+                items: files.length,
+                totalSize: totalSize,
+                dirHandle: null,
+            });
+            setImageFiles(files);
+        };
+        input.click();
     };
 
     const restoreLastFolder = async () => {
@@ -91,7 +118,11 @@ export default function Settings({}) {
         <div className="w-screen flex justify-center px-6">
             <div className="w-full h-screen max-w-2xl p-6 flex flex-col space-y-4">
                 <Hero />
-                <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
+                {"showDirectoryPicker" in window ? (
+                    <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
+                ) : (
+                    <ActionButton onClick={handleFileSelect} label="Select Files" colour="bg-blue-600" />
+                )}
                 <FolderDetails selectedFolder={selectedFolder} />
                 <hr className="border-gray-300 dark:border-gray-700" />
                 <SessionToggle />
@@ -138,7 +169,11 @@ function SessionToggle({}) {
 
 function FolderDetails({ selectedFolder }: { selectedFolder: SelectedFolder | null }) {
     if (!selectedFolder) {
-        return <p className="text-gray-500 dark:text-gray-400">No folder selected</p>;
+        return (
+            <p className="text-gray-500 dark:text-gray-400">
+                {"showDirectoryPicker" in window ? "No folder selected" : "No files selected"}
+            </p>
+        );
     }
     return (
         <div>
