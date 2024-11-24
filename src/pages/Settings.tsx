@@ -98,7 +98,7 @@ export default function Settings({}) {
                         />
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <h1 className="pt-4 text-7xl font-bold text-center dark:text-white z-10 font-kalam text-stroke-1 text-stroke-black">
+                        <h1 className="pt-4 text-5xl sm:text-7xl font-bold text-center dark:text-white z-10 font-kalam text-stroke-1 text-stroke-black">
                             FrameRate
                         </h1>
                     </div>
