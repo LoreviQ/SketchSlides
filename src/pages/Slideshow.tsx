@@ -23,7 +23,8 @@ import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
 import { timerAlerts } from "../utils/alerts";
-import { useToggle } from "../utils/hooks";
+import { useToggle } from "../hooks/misc";
+import { useImageManagement } from "../hooks/imageManagement";
 import { GridIcon } from "../assets/icons";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { useApp } from "../contexts/AppContext";
@@ -35,18 +36,24 @@ export default function Slideshow({}) {
     const { selectedFolder, imageFiles, setImageFiles, setRunApp, selectedSchedule } = useApp();
 
     // Image display variables
-    const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
-    const [orderIndex, setOrderIndex] = useState(0);
-    const [currentImageUrl, setCurrentImageUrl] = useState<string>(() => URL.createObjectURL(imageFiles[orderIndex]));
     const [showOverlay, toggleShowOverlay] = useToggle(false);
 
     // Progress and interval timer variables
     const [pause, togglePause] = useToggle(false);
     const [counter, setCounter] = useState(0);
+    const sessionIntervals = preferences.sessionType === SessionType.Schedule ? selectedSchedule.toIntervals() : [];
     const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
-    const [sessionIntervals, _] = useState<number[]>(() =>
-        preferences.sessionType === SessionType.Schedule ? selectedSchedule.toIntervals() : []
-    );
+
+    const { currentImageUrl, next, prev, deleteCurrentImage, showImageInfo } = useImageManagement({
+        imageFiles,
+        setImageFiles,
+        selectedFolder,
+        sessionType: preferences.sessionType,
+        sessionIntervals,
+        currentIntervalIndex,
+        setCurrentIntervalIndex,
+        exit: () => setRunApp(false),
+    });
 
     const getCurrentInterval = () => {
         if (preferences.sessionType === SessionType.Schedule) {
@@ -65,86 +72,6 @@ export default function Slideshow({}) {
     const maxHeightRef = useRef<number>(window.innerHeight);
     const isAutoResizing = useRef(false);
     const resizeTimeoutId = useRef<number | null>(null);
-
-    // Move to the next image in the order
-    const next = () => {
-        // Progress to the next interval if in Session mode
-        if (preferences.sessionType === SessionType.Schedule) {
-            if (currentIntervalIndex + 1 >= sessionIntervals.length) {
-                setRunApp(false);
-                return;
-            }
-            setCurrentIntervalIndex(currentIntervalIndex + 1);
-        }
-
-        if (orderIndex === imageOrder.length - 1) {
-            setImageOrder((imageOrder) => {
-                const newOrder = [...imageOrder, ...generateRandomOrder(imageFiles.length)];
-                setOrderIndex(orderIndex + 1);
-                return newOrder;
-            });
-        } else {
-            setOrderIndex(orderIndex + 1);
-        }
-        setCounter(0);
-    };
-
-    // Move to the previous image in the order
-    const prev = () => {
-        if (orderIndex === 0) {
-            return;
-        }
-        // Progress to the previous interval if in class mode
-        if (preferences.sessionType === SessionType.Schedule) {
-            setCurrentIntervalIndex((prev) => (prev - 1 < 0 ? sessionIntervals.length - 1 : prev - 1));
-        }
-        setOrderIndex(orderIndex - 1);
-        setCounter(0);
-    };
-
-    const deleteCurrentFile = async (): Promise<boolean> => {
-        if (!selectedFolder?.dirHandle) {
-            console.error("Cannot delete file: directory handle is null");
-            return false;
-        }
-        const currentFile = imageFiles[imageOrder[orderIndex]];
-        const deletedValue = imageOrder[orderIndex];
-
-        // Show confirmation dialog
-        const confirmDelete = window.confirm(`Are you sure you want to delete:\n${currentFile.name}?`);
-        if (!confirmDelete) return false;
-
-        try {
-            // Get file handle from the directory handle
-            await selectedFolder!.dirHandle.removeEntry(currentFile.name);
-
-            // Update app state
-            const newImageFiles = [...imageFiles];
-            newImageFiles.splice(imageOrder[orderIndex], 1);
-
-            // If no files left, return to settings
-            if (newImageFiles.length === 0) {
-                alert("No more images in folder. Returning to settings.");
-                setRunApp(false);
-                return true;
-            }
-
-            // Update image order: remove all instances of deletedValue and decrement higher values
-            const removedBeforeCurrent = imageOrder.slice(0, orderIndex).filter((idx) => idx === deletedValue).length;
-            const newOrder = imageOrder
-                .filter((idx) => idx !== deletedValue)
-                .map((idx) => (idx > deletedValue ? idx - 1 : idx));
-
-            setImageOrder(newOrder);
-            setImageFiles(newImageFiles);
-            setOrderIndex(orderIndex - removedBeforeCurrent);
-            return true;
-        } catch (error) {
-            console.error("Error deleting file:", error);
-            alert("Failed to delete file. Make sure you have permission to modify files in this folder.");
-            return false;
-        }
-    };
 
     // Setup an interval timer
     const setupTimer = (): ReturnType<typeof setInterval> | null => {
@@ -191,11 +118,6 @@ export default function Slideshow({}) {
     }, [currentImageUrl, isStandalone]);
 
     useEffect(() => {
-        // Current image URL
-        const fileIndex = imageOrder[orderIndex];
-        const currentFile = imageFiles[fileIndex];
-        const url = URL.createObjectURL(currentFile);
-        setCurrentImageUrl(url);
         // Keypresses
         const handleKeyPress = (event: KeyboardEvent) => {
             if (event.key === "ArrowRight") {
@@ -214,10 +136,9 @@ export default function Slideshow({}) {
 
         window.addEventListener("keydown", handleKeyPress);
         return () => {
-            URL.revokeObjectURL(url);
             window.removeEventListener("keydown", handleKeyPress);
         };
-    }, [orderIndex]);
+    }, [currentImageUrl]);
 
     // Set up interval timer
     useEffect(() => {
@@ -225,7 +146,7 @@ export default function Slideshow({}) {
         return () => {
             if (timer) clearInterval(timer);
         };
-    }, [orderIndex, pause, preferences.mute]);
+    }, [currentImageUrl, pause, preferences.mute]);
 
     // Saves new max dims when user resizes window
     useEffect(() => {
@@ -245,7 +166,7 @@ export default function Slideshow({}) {
         <div onClick={toggleShowOverlay} className="flex justify-center items-center h-screen overflow-hidden relative">
             <img
                 src={currentImageUrl}
-                alt={`Image ${imageOrder[orderIndex] + 1}`}
+                alt={`Image ${currentImageUrl}`}
                 className={`w-full h-full object-contain ${preferences.flip ? "scale-x-[-1]" : ""} ${
                     preferences.greyscale ? "grayscale" : ""
                 }`}
@@ -256,16 +177,14 @@ export default function Slideshow({}) {
             )}
             {showOverlay && (
                 <ButtonOverlay
-                    orderIndex={orderIndex}
-                    imageOrder={imageOrder}
-                    imageFiles={imageFiles}
                     selectedFolder={selectedFolder}
                     pause={pause}
                     togglePause={togglePause}
                     setRunApp={setRunApp}
                     next={() => next()}
                     prev={() => prev()}
-                    deleteCurrentFile={deleteCurrentFile}
+                    deleteCurrentImage={deleteCurrentImage}
+                    showImageInfo={showImageInfo}
                 />
             )}
         </div>
@@ -273,28 +192,24 @@ export default function Slideshow({}) {
 }
 
 interface ButtonOverlayProps {
-    orderIndex: number;
-    imageOrder: number[];
-    imageFiles: File[];
     selectedFolder: SelectedFolder | null;
     pause: boolean;
     togglePause: () => void;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     next: () => void;
     prev: () => void;
-    deleteCurrentFile: () => Promise<boolean>;
+    deleteCurrentImage: () => Promise<boolean>;
+    showImageInfo: () => string;
 }
 function ButtonOverlay({
-    orderIndex,
-    imageOrder,
-    imageFiles,
     selectedFolder,
     pause,
     togglePause,
     setRunApp,
     next,
     prev,
-    deleteCurrentFile,
+    deleteCurrentImage,
+    showImageInfo,
 }: ButtonOverlayProps) {
     const { preferences, updatePreferences } = usePreferences();
     const updateMute = preferenceUpdater("mute", updatePreferences);
@@ -308,22 +223,18 @@ function ButtonOverlay({
     const hasDirectoryAccess = "showDirectoryPicker" in window && selectedFolder?.dirHandle;
 
     // Alerts the user with information about the current image
-    const showImageInfo = () => {
-        const currentFile = imageFiles[imageOrder[orderIndex]];
-        const img = document.querySelector("img"); // Use the existing image element
-        const fullPath = currentFile.webkitRelativePath ? `${currentFile.webkitRelativePath}` : `${currentFile.name}`;
-
-        const info = `File Information:
-    - Name: ${fullPath}
-    - Type: ${currentFile.type}
-    - Size: ${(currentFile.size / (1024 * 1024)).toFixed(2)} MB
-    - Last Modified: ${new Date(currentFile.lastModified).toLocaleString()}
+    const handleShowInfo = () => {
+        const info = showImageInfo();
+        const img = document.querySelector("img");
+        const additionalInfo = img
+            ? `
     
-    Image Properties:
-    - Dimensions: ${img?.naturalWidth} x ${img?.naturalHeight} pixels
-    - Aspect Ratio: ${img ? (img.width / img.height).toFixed(2) : "N/A"}`;
+Image Properties:
+    - Dimensions: ${img.naturalWidth} x ${img.naturalHeight} pixels
+    - Aspect Ratio: ${(img.width / img.height).toFixed(2)}`
+            : "";
 
-        alert(info);
+        alert(info + additionalInfo);
     };
 
     return (
@@ -331,13 +242,13 @@ function ButtonOverlay({
             <div className="flex flex-col-reverse w-full h-full p-4">
                 <div className="flex justify-center space-x-4 pt-12 pb-2">
                     <SlideshowButton Icon={XMarkIcon} onClick={() => setRunApp(false)} />
-                    <SlideshowButton Icon={InformationCircleIcon} onClick={showImageInfo} />
+                    <SlideshowButton Icon={InformationCircleIcon} onClick={handleShowInfo} />
                     {/* Delete functionality is only supported via the showDirectoryPicker API */}
                     {hasDirectoryAccess && (
                         <SlideshowButton
                             Icon={TrashIcon}
                             onClick={async () => {
-                                const success = await deleteCurrentFile();
+                                const success = await deleteCurrentImage();
                                 if (success) {
                                     next();
                                 }
@@ -410,27 +321,4 @@ function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
         window.moveTo(newLeft, newTop);
         */
     };
-}
-
-// Generate a random order of indices for an array of length
-function generateRandomOrder(length: number): number[] {
-    const MAX_RANDOM_LEN = 50;
-    const numIndexes = Math.min(MAX_RANDOM_LEN, length);
-
-    // More efficient to shuffle if length is small
-    if (numIndexes > length / 2) {
-        const order = Array.from({ length }, (_, i) => i);
-        for (let i = 0; i < numIndexes; i++) {
-            const j = i + Math.floor(Math.random() * (length - i));
-            [order[i], order[j]] = [order[j], order[i]];
-        }
-        return order.slice(0, numIndexes);
-    }
-
-    // Otherwise, use a set to ensure uniqueness
-    const result = new Set<number>();
-    while (result.size < numIndexes) {
-        result.add(Math.floor(Math.random() * length));
-    }
-    return Array.from(result);
 }
