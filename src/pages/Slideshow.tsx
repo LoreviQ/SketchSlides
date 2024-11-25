@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+// React imports
+import React, { useState } from "react";
 
+// External imports
 import {
     XMarkIcon,
     ChevronLeftIcon,
@@ -17,26 +19,31 @@ import {
 } from "@heroicons/react/24/outline";
 import { BoltIcon } from "@heroicons/react/24/solid";
 
+// My Types
 import type { SelectedFolder } from "../types/preferences";
 import { SessionType } from "../types/session";
+// My Components
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
+// My Hooks
 import { useToggle } from "../hooks/misc";
 import { useImageManagement } from "../hooks/image";
 import { useTimer } from "../hooks/timer";
 import { useKeyboardControls } from "../hooks/keyboard";
+import { useWindowResize } from "../hooks/windowSize";
+// My Assets
 import { GridIcon } from "../assets/icons";
+// My Contexts
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { useApp } from "../contexts/AppContext";
 
 export default function Slideshow({}) {
     const { preferences } = usePreferences();
     const { selectedFolder, imageFiles, setImageFiles, setRunApp, selectedSchedule } = useApp();
-
-    // Image display variables
+    const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
     const [showOverlay, toggleShowOverlay] = useToggle(false);
     const sessionIntervals = preferences.sessionType === SessionType.Schedule ? selectedSchedule.toIntervals() : [];
-    const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
+    // Custom hook for managing the image order and URL
     const { currentImageUrl, next, prev, deleteCurrentImage, showImageInfo } = useImageManagement({
         imageFiles,
         setImageFiles,
@@ -47,6 +54,7 @@ export default function Slideshow({}) {
         setCurrentIntervalIndex,
         exit: () => setRunApp(false),
     });
+    // Custom hook for managing the timer
     const { counter, ticksPerSlide, isPaused, togglePause } = useTimer({
         currentImageUrl,
         sessionType: preferences.sessionType,
@@ -56,6 +64,7 @@ export default function Slideshow({}) {
         currentIntervalIndex,
         onComplete: () => next(),
     });
+    // Custom hook for enabling keyboard controls
     useKeyboardControls({
         onNext: next,
         onPrev: prev,
@@ -63,43 +72,10 @@ export default function Slideshow({}) {
         onExit: () => setRunApp(false),
     });
 
-    // Window resizing variables
+    // Custom hook for enabling window resizing
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
-
-    const maxWidthRef = useRef<number>(window.innerWidth);
-    const maxHeightRef = useRef<number>(window.innerHeight);
-    const isAutoResizing = useRef(false);
-    const resizeTimeoutId = useRef<number | null>(null);
-
-    // Resize the window to fit the image if standalone
-    useEffect(() => {
-        if (isStandalone && preferences.resizeWindow) {
-            isAutoResizing.current = true;
-            if (resizeTimeoutId.current !== null) {
-                clearTimeout(resizeTimeoutId.current);
-            }
-            resizeWindow(currentImageUrl, maxWidthRef.current, maxHeightRef.current);
-            resizeTimeoutId.current = setTimeout(() => {
-                isAutoResizing.current = false;
-                resizeTimeoutId.current = null;
-            }, 100);
-        }
-    }, [currentImageUrl, isStandalone]);
-
-    // Saves new max dims when user resizes window
-    useEffect(() => {
-        const handleResize = () => {
-            if (!isAutoResizing.current) {
-                maxWidthRef.current = window.innerWidth;
-                maxHeightRef.current = window.innerHeight;
-            }
-        };
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, []);
+    useWindowResize({ enabled: preferences.resizeWindow, isStandalone, currentImageUrl });
 
     return (
         <div onClick={toggleShowOverlay} className="flex justify-center items-center h-screen overflow-hidden relative">
@@ -224,40 +200,4 @@ Image Properties:
             </div>
         </div>
     );
-}
-
-// Resize and reposition the window to fit the image
-function resizeWindow(url: string, maxWidth: number, maxHeight: number) {
-    const img = new Image();
-    img.src = url;
-    img.onload = () => {
-        const { width, height } = img;
-
-        // Calculate scale factor based on the window size and the image dimensions
-        const scaleWidth = maxWidth / width;
-        const scaleHeight = maxHeight / height;
-        const scaleFactor = Math.min(scaleWidth, scaleHeight);
-
-        // Calculate the new dimensions based on the scale factor
-        const newWidth = width * scaleFactor;
-        const newHeight = height * scaleFactor;
-
-        // Adjust the resize target to account for the browser UI space
-        const browserUIWidth = window.outerWidth - window.innerWidth;
-        const browserUIHeight = window.outerHeight - window.innerHeight;
-        const adjustedWidth = newWidth + browserUIWidth;
-        const adjustedHeight = newHeight + browserUIHeight;
-
-        // Resize the window
-        window.resizeTo(adjustedWidth, adjustedHeight);
-
-        // Reposition the window so the resize is centered
-        /*
-        const currentLeft = window.screenX;
-        const currentTop = window.screenY;
-        const newLeft = currentLeft - (adjustedWidth - window.innerWidth) / 2;
-        const newTop = currentTop - (adjustedHeight - window.innerHeight) / 2;
-        window.moveTo(newLeft, newTop);
-        */
-    };
 }
