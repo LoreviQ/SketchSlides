@@ -1,7 +1,10 @@
 export function ProgressBar({ fraction }: { fraction: number }) {
     return (
         <div className="absolute bottom-0 w-full h-2 bg-blue-950/50">
-            <div className="h-full bg-blue-700" style={{ width: `${fraction * 100}%` }} />
+            <div
+                className="h-full bg-blue-700 transition-[width] duration-1000 ease-linear"
+                style={{ width: `${fraction * 100}%` }}
+            />
         </div>
     );
 }

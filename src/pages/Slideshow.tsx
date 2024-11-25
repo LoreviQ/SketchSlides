@@ -19,17 +19,14 @@ import { BoltIcon } from "@heroicons/react/24/solid";
 
 import type { SelectedFolder } from "../types/preferences";
 import { SessionType } from "../types/session";
-import { fixedTimeToMS } from "../utils/session";
 import { SlideshowButton } from "../components/buttons";
 import { ImageGrid, ProgressBar } from "../components/slideshow";
-import { timerAlerts } from "../utils/alerts";
 import { useToggle } from "../hooks/misc";
-import { useImageManagement } from "../hooks/imageManagement";
+import { useImageManagement } from "../hooks/image";
+import { useTimer } from "../hooks/timer";
 import { GridIcon } from "../assets/icons";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { useApp } from "../contexts/AppContext";
-
-const INTERVAL_MS = 10;
 
 export default function Slideshow({}) {
     const { preferences } = usePreferences();
@@ -37,13 +34,8 @@ export default function Slideshow({}) {
 
     // Image display variables
     const [showOverlay, toggleShowOverlay] = useToggle(false);
-
-    // Progress and interval timer variables
-    const [pause, togglePause] = useToggle(false);
-    const [counter, setCounter] = useState(0);
     const sessionIntervals = preferences.sessionType === SessionType.Schedule ? selectedSchedule.toIntervals() : [];
     const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
-
     const { currentImageUrl, next, prev, deleteCurrentImage, showImageInfo } = useImageManagement({
         imageFiles,
         setImageFiles,
@@ -54,16 +46,15 @@ export default function Slideshow({}) {
         setCurrentIntervalIndex,
         exit: () => setRunApp(false),
     });
-
-    const getCurrentInterval = () => {
-        if (preferences.sessionType === SessionType.Schedule) {
-            return sessionIntervals[currentIntervalIndex];
-        }
-        return fixedTimeToMS(preferences.fixedTime);
-    };
-    const timeMS = getCurrentInterval();
-    const TICKS_PER_SLIDE = timeMS / INTERVAL_MS;
-
+    const { progress, isPaused, togglePause } = useTimer({
+        currentImageUrl,
+        sessionType: preferences.sessionType,
+        fixedTime: preferences.fixedTime,
+        isMuted: preferences.mute,
+        sessionIntervals,
+        currentIntervalIndex,
+        onComplete: () => next(),
+    });
     // Window resizing variables
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
@@ -72,35 +63,6 @@ export default function Slideshow({}) {
     const maxHeightRef = useRef<number>(window.innerHeight);
     const isAutoResizing = useRef(false);
     const resizeTimeoutId = useRef<number | null>(null);
-
-    // Setup an interval timer
-    const setupTimer = (): ReturnType<typeof setInterval> | null => {
-        let timer: ReturnType<typeof setInterval> | null = null;
-        if (!pause && preferences.sessionType != SessionType.Relaxed) {
-            timer = setInterval(() => {
-                setCounter((prev) => {
-                    const remainingTicks = TICKS_PER_SLIDE - prev;
-                    const remainingSeconds = (remainingTicks * INTERVAL_MS) / 1000;
-                    // Play sounds at specific remaining times if not muted
-                    if (!preferences.mute) {
-                        if (remainingSeconds <= 3.01 && remainingSeconds > 2.99) {
-                            timerAlerts.threeSec();
-                        } else if (remainingSeconds <= 2.01 && remainingSeconds > 1.99) {
-                            timerAlerts.twoSec();
-                        } else if (remainingSeconds <= 1.01 && remainingSeconds > 0.99) {
-                            timerAlerts.oneSec();
-                        }
-                    }
-                    if (prev >= TICKS_PER_SLIDE) {
-                        next();
-                        return 0;
-                    }
-                    return prev + 1;
-                });
-            }, INTERVAL_MS);
-        }
-        return timer;
-    };
 
     // Resize the window to fit the image if standalone
     useEffect(() => {
@@ -140,14 +102,6 @@ export default function Slideshow({}) {
         };
     }, [currentImageUrl]);
 
-    // Set up interval timer
-    useEffect(() => {
-        const timer = setupTimer();
-        return () => {
-            if (timer) clearInterval(timer);
-        };
-    }, [currentImageUrl, pause, preferences.mute]);
-
     // Saves new max dims when user resizes window
     useEffect(() => {
         const handleResize = () => {
@@ -172,13 +126,11 @@ export default function Slideshow({}) {
                 }`}
             />
             {preferences.grid && <ImageGrid />}
-            {preferences.timer && preferences.sessionType != SessionType.Relaxed && (
-                <ProgressBar fraction={counter / TICKS_PER_SLIDE} />
-            )}
+            {preferences.timer && preferences.sessionType != SessionType.Relaxed && <ProgressBar fraction={progress} />}
             {showOverlay && (
                 <ButtonOverlay
                     selectedFolder={selectedFolder}
-                    pause={pause}
+                    pause={isPaused}
                     togglePause={togglePause}
                     setRunApp={setRunApp}
                     next={() => next()}
