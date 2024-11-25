@@ -4,7 +4,7 @@ import { useToggle } from "./misc";
 import { SessionType, FixedTime } from "../types/session";
 import { fixedTimeToMS } from "../utils/session";
 
-const INTERVAL_MS = 1000;
+export const INTERVAL_MS = 50;
 
 interface TimerConfig {
     currentImageUrl: string;
@@ -17,7 +17,8 @@ interface TimerConfig {
 }
 
 interface TimerState {
-    progress: number;
+    counter: number;
+    ticksPerSlide: number;
     isPaused: boolean;
     togglePause: () => void;
 }
@@ -43,26 +44,16 @@ export const useTimer = ({
     const [isPaused, togglePause] = useToggle(false);
     const ticksPerSlide = timeMS / INTERVAL_MS;
 
+    // Timer
     useEffect(() => {
         if (isPaused || sessionType === SessionType.Relaxed) {
             return;
         }
         let timer: number | null = null;
         timer = window.setInterval(() => {
+            console.log(counter);
             setCounter((prev) => {
                 const next = prev + 1;
-                const remainingSeconds = ((ticksPerSlide - next) * INTERVAL_MS) / 1000;
-                console.log(remainingSeconds);
-                // Sound alerts
-                if (!isMuted) {
-                    if (remainingSeconds <= 3.01 && remainingSeconds > 2.99) {
-                        timerAlerts.threeSec();
-                    } else if (remainingSeconds <= 2.01 && remainingSeconds > 1.99) {
-                        timerAlerts.twoSec();
-                    } else if (remainingSeconds <= 1.01 && remainingSeconds > 0.99) {
-                        timerAlerts.oneSec();
-                    }
-                }
                 if (next >= ticksPerSlide) {
                     onComplete();
                     return 0;
@@ -74,13 +65,28 @@ export const useTimer = ({
         return () => clearInterval(timer);
     }, [isPaused, isMuted, onComplete]);
 
+    // Sound alerts
+    useEffect(() => {
+        const remainingSeconds = ((ticksPerSlide - counter) * INTERVAL_MS) / 1000;
+        if (!isMuted) {
+            if (remainingSeconds <= 3.01 && remainingSeconds > 2.99) {
+                timerAlerts.threeSec();
+            } else if (remainingSeconds <= 2.01 && remainingSeconds > 1.99) {
+                timerAlerts.twoSec();
+            } else if (remainingSeconds <= 1.01 && remainingSeconds > 0.99) {
+                timerAlerts.oneSec();
+            }
+        }
+    }, [counter, isMuted]);
+
     // Reset the timer when the image changes
     useEffect(() => {
         setCounter(0);
     }, [currentImageUrl]);
 
     return {
-        progress: counter / ticksPerSlide,
+        counter,
+        ticksPerSlide,
         isPaused,
         togglePause,
     };

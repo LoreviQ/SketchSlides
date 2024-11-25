@@ -24,6 +24,7 @@ import { ImageGrid, ProgressBar } from "../components/slideshow";
 import { useToggle } from "../hooks/misc";
 import { useImageManagement } from "../hooks/image";
 import { useTimer } from "../hooks/timer";
+import { useKeyboardControls } from "../hooks/keyboard";
 import { GridIcon } from "../assets/icons";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { useApp } from "../contexts/AppContext";
@@ -46,7 +47,7 @@ export default function Slideshow({}) {
         setCurrentIntervalIndex,
         exit: () => setRunApp(false),
     });
-    const { progress, isPaused, togglePause } = useTimer({
+    const { counter, ticksPerSlide, isPaused, togglePause } = useTimer({
         currentImageUrl,
         sessionType: preferences.sessionType,
         fixedTime: preferences.fixedTime,
@@ -55,6 +56,13 @@ export default function Slideshow({}) {
         currentIntervalIndex,
         onComplete: () => next(),
     });
+    useKeyboardControls({
+        onNext: next,
+        onPrev: prev,
+        onPause: togglePause,
+        onExit: () => setRunApp(false),
+    });
+
     // Window resizing variables
     const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
@@ -78,29 +86,6 @@ export default function Slideshow({}) {
             }, 100);
         }
     }, [currentImageUrl, isStandalone]);
-
-    useEffect(() => {
-        // Keypresses
-        const handleKeyPress = (event: KeyboardEvent) => {
-            if (event.key === "ArrowRight") {
-                next();
-            }
-            if (event.key === "ArrowLeft") {
-                prev();
-            }
-            if (event.key === " ") {
-                togglePause();
-            }
-            if (event.key === "Escape") {
-                setRunApp(false);
-            }
-        };
-
-        window.addEventListener("keydown", handleKeyPress);
-        return () => {
-            window.removeEventListener("keydown", handleKeyPress);
-        };
-    }, [currentImageUrl]);
 
     // Saves new max dims when user resizes window
     useEffect(() => {
@@ -126,7 +111,9 @@ export default function Slideshow({}) {
                 }`}
             />
             {preferences.grid && <ImageGrid />}
-            {preferences.timer && preferences.sessionType != SessionType.Relaxed && <ProgressBar fraction={progress} />}
+            {preferences.timer && preferences.sessionType != SessionType.Relaxed && (
+                <ProgressBar currentTicks={counter} totalTicks={ticksPerSlide} />
+            )}
             {showOverlay && (
                 <ButtonOverlay
                     selectedFolder={selectedFolder}
