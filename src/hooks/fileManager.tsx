@@ -1,0 +1,163 @@
+import { useState, useEffect } from "react";
+import type { SelectedFolder } from "../types/preferences";
+import { saveLastFolder, getLastFolder } from "../utils/indexDB";
+
+interface FileManagerState {
+    selectedFolder: SelectedFolder | null;
+    imageFiles: File[];
+    setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
+    isDragging: boolean;
+}
+
+interface FileManagerActions {
+    handleFolderSelect: () => Promise<void>;
+    handleFileSelect: () => void;
+}
+
+export function useFileManager(runApp: boolean): FileManagerState & FileManagerActions {
+    const [selectedFolder, setSelectedFolder] = useState<SelectedFolder | null>(null);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [isDragging, setIsDragging] = useState(false);
+
+    const updateFolderData = async (dirHandle: FileSystemDirectoryHandle) => {
+        const files = await FileScanner(dirHandle);
+        if (files.length === 0) {
+            alert("No image files found in the selected folder");
+            return;
+        }
+        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+        setSelectedFolder({
+            name: dirHandle.name,
+            items: files.length,
+            totalSize: totalSize,
+            dirHandle: dirHandle,
+        });
+        setImageFiles(files);
+    };
+
+    const handleFolderSelect = async () => {
+        if (!("showDirectoryPicker" in window)) {
+            console.error("Cannot select folder since the showDirectoryPicker API is not supported");
+            return;
+        }
+        try {
+            const dirHandle = await window.showDirectoryPicker();
+            await updateFolderData(dirHandle);
+            await saveLastFolder(dirHandle);
+        } catch (err) {
+            console.error("Error selecting folder:", err);
+            if (err instanceof Error && err.name !== "AbortError") {
+                alert("An error occurred while selecting the folder");
+            }
+        }
+    };
+
+    const handleFileSelect = () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.multiple = true;
+        input.accept = "image/*";
+
+        input.onchange = async (e: Event) => {
+            const target = e.target as HTMLInputElement;
+            const files = Array.from(target.files || []).filter((file) => file.type.startsWith("image/"));
+
+            if (files.length === 0) {
+                alert("No image files selected");
+                return;
+            }
+
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            setSelectedFolder({
+                name: "Selected Files",
+                items: files.length,
+                totalSize: totalSize,
+                dirHandle: null,
+            });
+            setImageFiles(files);
+        };
+        input.click();
+    };
+
+    const handleDrop = (e: DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const items = Array.from(e.dataTransfer?.files || []).filter((file): file is File =>
+            file.type.startsWith("image/")
+        );
+        if (items.length === 0) {
+            alert("No image files found in drop");
+            return;
+        }
+        const totalSize = items.reduce((sum, file) => sum + file.size, 0);
+        setSelectedFolder({
+            name: "Dropped Files",
+            items: items.length,
+            totalSize: totalSize,
+            dirHandle: null,
+        });
+        setImageFiles(items);
+    };
+
+    useEffect(() => {
+        if (!runApp) return;
+        const restoreLastFolder = async () => {
+            try {
+                const handle = await getLastFolder();
+                if (!handle) return;
+                await updateFolderData(handle);
+            } catch (err) {
+                console.log("Could not restore last folder:", err);
+            }
+        };
+
+        restoreLastFolder();
+
+        const handleDragOver = (e: DragEvent) => e.preventDefault();
+        const handleDragEnter = (e: DragEvent) => {
+            e.preventDefault();
+            setIsDragging(true);
+        };
+        const handleDragLeave = (e: DragEvent) => {
+            e.preventDefault();
+            if (!e.relatedTarget) {
+                setIsDragging(false);
+            }
+        };
+
+        document.addEventListener("drop", handleDrop);
+        document.addEventListener("dragover", handleDragOver);
+        document.addEventListener("dragenter", handleDragEnter);
+        document.addEventListener("dragleave", handleDragLeave);
+
+        return () => {
+            document.removeEventListener("drop", handleDrop);
+            document.removeEventListener("dragover", handleDragOver);
+            document.removeEventListener("dragenter", handleDragEnter);
+            document.removeEventListener("dragleave", handleDragLeave);
+        };
+    }, [runApp]);
+
+    return {
+        selectedFolder,
+        imageFiles,
+        setImageFiles,
+        isDragging,
+        handleFolderSelect,
+        handleFileSelect,
+    };
+}
+
+async function FileScanner(dirHandle: FileSystemDirectoryHandle): Promise<File[]> {
+    const files: File[] = [];
+    for await (const entry of dirHandle.values()) {
+        if (entry.kind === "file") {
+            const fileHandle = entry as FileSystemFileHandle;
+            const file = await fileHandle.getFile();
+            if (file.type.startsWith("image/")) {
+                files.push(file);
+            }
+        }
+    }
+    return files;
+}

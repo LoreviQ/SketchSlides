@@ -1,36 +1,41 @@
 import React, { createContext, useContext, useState } from "react";
 import type { SelectedFolder } from "../types/preferences";
 import { CustomSchedule, DEFAULT_SCHEDULE } from "../types/session";
+import { useFileManager } from "../hooks/fileManager";
 
 interface AppContextType {
     selectedFolder: SelectedFolder | null;
-    setSelectedFolder: React.Dispatch<React.SetStateAction<SelectedFolder | null>>;
     imageFiles: File[];
     setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
     runApp: boolean;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     selectedSchedule: CustomSchedule;
     setSelectedSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
+    handleFolderSelect: () => Promise<void>;
+    handleFileSelect: () => void;
+    isDragging: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
-
 export function AppProvider({ children }: { children: React.ReactNode }) {
-    const [selectedFolder, setSelectedFolder] = useState<null | SelectedFolder>(null);
-    const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [runApp, setRunApp] = useState(false);
+    const { selectedFolder, imageFiles, setImageFiles, isDragging, handleFolderSelect, handleFileSelect } =
+        useFileManager(runApp);
     const [selectedSchedule, setSelectedSchedule] = useState(DEFAULT_SCHEDULE);
+
     return (
         <AppContext.Provider
             value={{
                 selectedFolder,
-                setSelectedFolder,
                 imageFiles,
                 setImageFiles,
                 runApp,
                 setRunApp,
                 selectedSchedule,
                 setSelectedSchedule,
+                handleFolderSelect,
+                handleFileSelect,
+                isDragging,
             }}
         >
             {children}

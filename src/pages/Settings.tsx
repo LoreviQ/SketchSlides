@@ -11,14 +11,14 @@ import {
     NewIntervalButton,
 } from "../components/buttons";
 import { formatFileSize } from "../utils/formatters";
-import { saveLastFolder, getLastFolder } from "../utils/indexDB";
 import { sessionTypeToDescription } from "../utils/session";
 import { useApp } from "../contexts/AppContext";
 import { DragAndDropOverlay, Hero } from "../components/style";
 
 export default function Settings({}) {
     const { preferences } = usePreferences();
-    const { selectedFolder, setSelectedFolder, setImageFiles, setRunApp } = useApp();
+    const { selectedFolder, handleFolderSelect, handleFileSelect, isDragging, setRunApp } = useApp();
+
     const runApp = () => {
         if (!selectedFolder) {
             alert("Please select a folder first");
@@ -31,140 +31,9 @@ export default function Settings({}) {
         setRunApp(true);
     };
 
-    const updateFolderData = async (dirHandle: FileSystemDirectoryHandle) => {
-        const files = await FileScanner(dirHandle);
-        if (files.length === 0) {
-            alert("No image files found in the selected folder");
-            return;
-        }
-        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-        setSelectedFolder({
-            name: dirHandle.name,
-            items: files.length,
-            totalSize: totalSize,
-            dirHandle: dirHandle,
-        });
-        setImageFiles(files);
-    };
-
-    // Uses the showDirectoryPicker API to select a folder
-    const handleFolderSelect = async () => {
-        if (!("showDirectoryPicker" in window)) {
-            console.error(
-                "Cannot select folder since the showDirectoryPicker API is not supported in your browser/OS."
-            );
-            return;
-        }
-        try {
-            const dirHandle = await window.showDirectoryPicker();
-            await updateFolderData(dirHandle);
-            await saveLastFolder(dirHandle);
-        } catch (err) {
-            console.error("Error selecting folder:", err);
-            if (err instanceof Error && err.name !== "AbortError") {
-                alert("An error occurred while selecting the folder");
-            }
-        }
-    };
-
-    // Uses the file input element to select files, used as a fallback for browsers that don't support the showDirectoryPicker API
-    const handleFileSelect = async () => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.multiple = true;
-        input.accept = "image/*";
-
-        input.onchange = async (e: Event) => {
-            const target = e.target as HTMLInputElement;
-            const files = Array.from(target.files || []).filter((file) => file.type.startsWith("image/"));
-
-            if (files.length === 0) {
-                alert("No image files selected");
-                return;
-            }
-
-            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-            setSelectedFolder({
-                name: "Selected Files",
-                items: files.length,
-                totalSize: totalSize,
-                dirHandle: null,
-            });
-            setImageFiles(files);
-        };
-        input.click();
-    };
-
-    const restoreLastFolder = async () => {
-        try {
-            // Retrieve handle from IndexedDB
-            const handle = await getLastFolder();
-            if (!handle) {
-                console.log("No saved handle found");
-                return;
-            }
-            await updateFolderData(handle);
-        } catch (err) {
-            console.log("Could not restore last folder:", err);
-        }
-    };
-
-    // Try to restore the last folder on component mount
-    useEffect(() => {
-        restoreLastFolder();
-    }, []);
-
-    // DRAG AND DROP
-    const handleDrop = (e: DragEvent) => {
-        e.preventDefault();
-        document.body.classList.remove("drag-active");
-        const items = Array.from(e.dataTransfer?.files || []).filter((file): file is File =>
-            file.type.startsWith("image/")
-        );
-        if (items.length === 0) {
-            alert("No image files found in drop");
-            return;
-        }
-        const totalSize = items.reduce((sum, file) => sum + file.size, 0);
-        setSelectedFolder({
-            name: "Dropped Files",
-            items: items.length,
-            totalSize: totalSize,
-            dirHandle: null,
-        });
-        setImageFiles(items);
-    };
-    const handleDragOver = (e: DragEvent) => {
-        e.preventDefault();
-    };
-    const handleDragEnter = (e: DragEvent) => {
-        e.preventDefault();
-        document.body.classList.add("drag-active");
-    };
-    const handleDragLeave = (e: DragEvent) => {
-        e.preventDefault();
-        if (!e.relatedTarget) {
-            document.body.classList.remove("drag-active");
-        }
-    };
-    useEffect(() => {
-        document.addEventListener("drop", handleDrop);
-        document.addEventListener("dragover", handleDragOver);
-        document.addEventListener("dragenter", handleDragEnter);
-        document.addEventListener("dragleave", handleDragLeave);
-
-        return () => {
-            document.removeEventListener("drop", handleDrop);
-            document.removeEventListener("dragover", handleDragOver);
-            document.removeEventListener("dragenter", handleDragEnter);
-            document.removeEventListener("dragleave", handleDragLeave);
-            document.body.classList.remove("drag-active");
-        };
-    }, []);
-
     return (
         <>
-            <DragAndDropOverlay />
+            {isDragging && <DragAndDropOverlay />}
             <div className="w-screen flex justify-center px-6">
                 <div className="w-full h-screen max-w-2xl p-6 flex flex-col space-y-4">
                     <Hero />
@@ -182,20 +51,6 @@ export default function Settings({}) {
             </div>
         </>
     );
-}
-
-async function FileScanner(dirHandle: FileSystemDirectoryHandle): Promise<File[]> {
-    const files: File[] = [];
-    for await (const entry of dirHandle.values()) {
-        if (entry.kind === "file") {
-            const fileHandle = entry as FileSystemFileHandle;
-            const file = await fileHandle.getFile();
-            if (file.type.startsWith("image/")) {
-                files.push(file);
-            }
-        }
-    }
-    return files;
 }
 
 function SessionToggle({}) {
