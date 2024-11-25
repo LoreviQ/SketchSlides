@@ -155,46 +155,53 @@ Image Properties:
         <div className="absolute top-0 left-0 w-full h-full bg-transparent flex justify-center items-center">
             <div className="flex flex-col-reverse w-full h-full p-4">
                 <div className="flex justify-center space-x-4 pt-12 pb-2">
-                    <SlideshowButton Icon={XMarkIcon} onClick={() => setRunApp(false)} />
-                    <SlideshowButton Icon={InformationCircleIcon} onClick={handleShowInfo} />
-                    {/* Delete functionality is only supported via the showDirectoryPicker API */}
-                    {hasDirectoryAccess && (
-                        <SlideshowButton
-                            Icon={TrashIcon}
-                            onClick={async () => {
-                                const success = await deleteCurrentImage();
-                                if (success) {
-                                    next();
-                                }
-                            }}
-                        />
-                    )}
-                    {preferences.sessionType != SessionType.Relaxed && (
-                        <SlideshowButton
-                            Icon={preferences.mute ? SpeakerXMarkIcon : SpeakerWaveIcon}
-                            onClick={() => updateMute(!preferences.mute)}
-                        />
-                    )}
-                    {/* Resize functionality is only supported in standalone mode */}
-                    {isStandalone && (
-                        <SlideshowButton
-                            Icon={preferences.resizeWindow ? ArrowsPointingOutIcon : ArrowsPointingInIcon}
-                            onClick={() => updateResizeWindow(!preferences.resizeWindow)}
-                        />
-                    )}
-                    <SlideshowButton Icon={GridIcon} onClick={() => updateGrid(!preferences.grid)} />
-                    <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={() => updateFlip(!preferences.flip)} />
-                    <SlideshowButton Icon={BoltIcon} onClick={() => updateGreyscale(!preferences.greyscale)} />
-                    {preferences.sessionType != SessionType.Relaxed && (
-                        <SlideshowButton Icon={ClockIcon} onClick={() => updateTimer(!preferences.timer)} />
-                    )}
+                    <div className="bg-black/50 rounded-full flex space-x-2 p-2">
+                        <SlideshowButton Icon={XMarkIcon} onClick={() => setRunApp(false)} />
+                        <SlideshowButton Icon={InformationCircleIcon} onClick={handleShowInfo} />
+                        {/* Delete functionality is only supported via the showDirectoryPicker API */}
+                        {hasDirectoryAccess && (
+                            <SlideshowButton
+                                Icon={TrashIcon}
+                                onClick={async () => {
+                                    const success = await deleteCurrentImage();
+                                    if (success) {
+                                        next();
+                                    }
+                                }}
+                            />
+                        )}
+                        {preferences.sessionType != SessionType.Relaxed && (
+                            <SlideshowButton
+                                Icon={preferences.mute ? SpeakerXMarkIcon : SpeakerWaveIcon}
+                                onClick={() => updateMute(!preferences.mute)}
+                            />
+                        )}
+                        {/* Resize functionality is only supported in standalone mode */}
+                        {isStandalone && (
+                            <SlideshowButton
+                                Icon={preferences.resizeWindow ? ArrowsPointingOutIcon : ArrowsPointingInIcon}
+                                onClick={() => updateResizeWindow(!preferences.resizeWindow)}
+                            />
+                        )}
+                        <SlideshowButton Icon={GridIcon} onClick={() => updateGrid(!preferences.grid)} />
+                        <SlideshowButton Icon={ArrowsRightLeftIcon} onClick={() => updateFlip(!preferences.flip)} />
+                        <SlideshowButton Icon={BoltIcon} onClick={() => updateGreyscale(!preferences.greyscale)} />
+                        {preferences.sessionType != SessionType.Relaxed && (
+                            <SlideshowButton Icon={ClockIcon} onClick={() => updateTimer(!preferences.timer)} />
+                        )}
+                    </div>
                 </div>
                 <div className="flex justify-center space-x-4">
-                    <SlideshowButton Icon={ChevronLeftIcon} onClick={() => prev()} size={"xl"} />
+                    <SlideshowButton Icon={ChevronLeftIcon} onClick={() => prev()} size={"xl"} showBg={true} />
                     {preferences.sessionType != SessionType.Relaxed && (
-                        <SlideshowButton Icon={pause ? PlayIcon : PauseIcon} onClick={togglePause} size={"xl"} />
+                        <SlideshowButton
+                            Icon={pause ? PlayIcon : PauseIcon}
+                            onClick={togglePause}
+                            size={"xl"}
+                            showBg={true}
+                        />
                     )}
-                    <SlideshowButton Icon={ChevronRightIcon} onClick={() => next()} size={"xl"} />
+                    <SlideshowButton Icon={ChevronRightIcon} onClick={() => next()} size={"xl"} showBg={true} />
                 </div>
             </div>
         </div>

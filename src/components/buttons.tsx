@@ -339,8 +339,9 @@ interface SlideshowButtonProps {
     onClick: () => void;
     Icon: React.ComponentType<{ className?: string }>;
     size?: "sm" | "md" | "lg" | "xl"; // Using preset sizes instead
+    showBg?: boolean;
 }
-export function SlideshowButton({ onClick, Icon, size = "md" }: SlideshowButtonProps) {
+export function SlideshowButton({ onClick, Icon, size = "md", showBg = false }: SlideshowButtonProps) {
     const sizeClasses = {
         sm: {
             p: "p-1",
@@ -361,7 +362,9 @@ export function SlideshowButton({ onClick, Icon, size = "md" }: SlideshowButtonP
     };
     return (
         <button
-            className={`bg-black/50 text-white rounded-full ${sizeClasses[size]["p"]} hover:bg-gray-700`}
+            className={`${showBg ? "bg-black/50" : "bg-transparent"} text-white rounded-full ${
+                sizeClasses[size]["p"]
+            } hover:bg-gray-700 border-none outline-none`}
             onClick={(e) => {
                 e.stopPropagation();
                 onClick();
