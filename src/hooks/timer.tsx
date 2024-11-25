@@ -51,7 +51,6 @@ export const useTimer = ({
         }
         let timer: number | null = null;
         timer = window.setInterval(() => {
-            console.log(counter);
             setCounter((prev) => {
                 const next = prev + 1;
                 if (next >= ticksPerSlide) {
