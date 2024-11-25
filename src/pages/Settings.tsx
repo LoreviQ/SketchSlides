@@ -14,7 +14,7 @@ import { formatFileSize } from "../utils/formatters";
 import { saveLastFolder, getLastFolder } from "../utils/indexDB";
 import { sessionTypeToDescription } from "../utils/session";
 import { useApp } from "../contexts/AppContext";
-import { Hero } from "../components/style";
+import { DragAndDropOverlay, Hero } from "../components/style";
 
 export default function Settings({}) {
     const { preferences } = usePreferences();
@@ -114,22 +114,73 @@ export default function Settings({}) {
         restoreLastFolder();
     }, []);
 
+    // DRAG AND DROP
+    const handleDrop = (e: DragEvent) => {
+        e.preventDefault();
+        document.body.classList.remove("drag-active");
+        const items = Array.from(e.dataTransfer?.files || []).filter((file): file is File =>
+            file.type.startsWith("image/")
+        );
+        if (items.length === 0) {
+            alert("No image files found in drop");
+            return;
+        }
+        const totalSize = items.reduce((sum, file) => sum + file.size, 0);
+        setSelectedFolder({
+            name: "Dropped Files",
+            items: items.length,
+            totalSize: totalSize,
+            dirHandle: null,
+        });
+        setImageFiles(items);
+    };
+    const handleDragOver = (e: DragEvent) => {
+        e.preventDefault();
+    };
+    const handleDragEnter = (e: DragEvent) => {
+        e.preventDefault();
+        document.body.classList.add("drag-active");
+    };
+    const handleDragLeave = (e: DragEvent) => {
+        e.preventDefault();
+        if (!e.relatedTarget) {
+            document.body.classList.remove("drag-active");
+        }
+    };
+    useEffect(() => {
+        document.addEventListener("drop", handleDrop);
+        document.addEventListener("dragover", handleDragOver);
+        document.addEventListener("dragenter", handleDragEnter);
+        document.addEventListener("dragleave", handleDragLeave);
+
+        return () => {
+            document.removeEventListener("drop", handleDrop);
+            document.removeEventListener("dragover", handleDragOver);
+            document.removeEventListener("dragenter", handleDragEnter);
+            document.removeEventListener("dragleave", handleDragLeave);
+            document.body.classList.remove("drag-active");
+        };
+    }, []);
+
     return (
-        <div className="w-screen flex justify-center px-6">
-            <div className="w-full h-screen max-w-2xl p-6 flex flex-col space-y-4">
-                <Hero />
-                {"showDirectoryPicker" in window ? (
-                    <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
-                ) : (
-                    <ActionButton onClick={handleFileSelect} label="Select Files" colour="bg-blue-600" />
-                )}
-                <FolderDetails selectedFolder={selectedFolder} />
-                <hr className="border-gray-300 dark:border-gray-700" />
-                <SessionToggle />
-                <SessionTypeCard />
-                <ActionButton onClick={runApp} label="Start" colour="bg-green-600" />
+        <>
+            <DragAndDropOverlay />
+            <div className="w-screen flex justify-center px-6">
+                <div className="w-full h-screen max-w-2xl p-6 flex flex-col space-y-4">
+                    <Hero />
+                    {"showDirectoryPicker" in window ? (
+                        <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
+                    ) : (
+                        <ActionButton onClick={handleFileSelect} label="Select Files" colour="bg-blue-600" />
+                    )}
+                    <FolderDetails selectedFolder={selectedFolder} />
+                    <hr className="border-gray-300 dark:border-gray-700" />
+                    <SessionToggle />
+                    <SessionTypeCard />
+                    <ActionButton onClick={runApp} label="Start" colour="bg-green-600" />
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
@@ -170,9 +221,10 @@ function SessionToggle({}) {
 function FolderDetails({ selectedFolder }: { selectedFolder: SelectedFolder | null }) {
     if (!selectedFolder) {
         return (
-            <p className="text-gray-500 dark:text-gray-400">
-                {"showDirectoryPicker" in window ? "No folder selected" : "No files selected"}
-            </p>
+            <div className="text-gray-500 dark:text-gray-400">
+                <p>{`No ${"showDirectoryPicker" in window ? "folder" : "files"} selected`}</p>
+                <p> Click the button, or drag and drop</p>
+            </div>
         );
     }
     return (

@@ -15,3 +15,17 @@ export function Hero() {
         </div>
     );
 }
+
+export function DragAndDropOverlay() {
+    return (
+        <div
+            className="fixed inset-0 bg-black/50 pointer-events-none opacity-0 transition-opacity backdrop-blur-sm
+                      flex items-center justify-center z-50
+                      [body.drag-active_&]:opacity-100"
+        >
+            <div className="px-8 py-4 rounded-lg ">
+                <p className="text-2xl font-semibold text-white">Drop images anywhere to load them</p>
+            </div>
+        </div>
+    );
+}
