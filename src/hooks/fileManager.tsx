@@ -100,7 +100,9 @@ export function useFileManager(runApp: boolean): FileManagerState & FileManagerA
     };
 
     useEffect(() => {
-        if (!runApp) return;
+        if (runApp) return;
+
+        // Restore last folder on component mount
         const restoreLastFolder = async () => {
             try {
                 const handle = await getLastFolder();
@@ -110,9 +112,9 @@ export function useFileManager(runApp: boolean): FileManagerState & FileManagerA
                 console.log("Could not restore last folder:", err);
             }
         };
-
         restoreLastFolder();
 
+        // Enable drag and drop
         const handleDragOver = (e: DragEvent) => e.preventDefault();
         const handleDragEnter = (e: DragEvent) => {
             e.preventDefault();
