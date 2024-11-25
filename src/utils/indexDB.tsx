@@ -1,4 +1,4 @@
-const DB_NAME = "FrameRateDB";
+const DB_NAME = "SketchSlidesDB";
 const STORE_NAME = "handles";
 const DB_VERSION = 2;
 

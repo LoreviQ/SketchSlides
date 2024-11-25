@@ -11,20 +11,20 @@ export default defineConfig({
 		globPatterns: ['**/*.{js,css,html,png,svg}'], // Cache all relevant files
 	  },
 	  manifest: {
-		name: 'FrameRate',
-		short_name: 'framerate',
+		name: 'SketchSlides',
+		short_name: 'sketchslides',
 		start_url: '/',
 		display: 'standalone',
 		background_color: '#ffffff',
 		theme_color: '#000000',
 		icons: [
 			{
-				src: "/icons/framerate.png",
+				src: "/icons/sketchslides.png",
 				sizes: "1024x1024",
 				type: "image/png"
 			},
 			{
-				src: "/icons/framerate_small.png",
+				src: "/icons/sketchslides_small.png",
 				sizes: "144x144",
 				type: "image/png"
 			}
