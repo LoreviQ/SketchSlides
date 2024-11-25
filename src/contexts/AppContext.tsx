@@ -6,20 +6,20 @@ import { useFileManager } from "../hooks/fileManager";
 interface AppContextType {
     selectedFolder: SelectedFolder | null;
     imageFiles: File[];
-    setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
     runApp: boolean;
     setRunApp: React.Dispatch<React.SetStateAction<boolean>>;
     selectedSchedule: CustomSchedule;
     setSelectedSchedule: React.Dispatch<React.SetStateAction<CustomSchedule>>;
     handleFolderSelect: () => Promise<void>;
     handleFileSelect: () => void;
+    deleteFile: (index: number) => Promise<boolean>;
     isDragging: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: React.ReactNode }) {
     const [runApp, setRunApp] = useState(false);
-    const { selectedFolder, imageFiles, setImageFiles, isDragging, handleFolderSelect, handleFileSelect } =
+    const { selectedFolder, imageFiles, isDragging, handleFolderSelect, handleFileSelect, deleteFile } =
         useFileManager(runApp);
     const [selectedSchedule, setSelectedSchedule] = useState(DEFAULT_SCHEDULE);
 
@@ -28,13 +28,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             value={{
                 selectedFolder,
                 imageFiles,
-                setImageFiles,
                 runApp,
                 setRunApp,
                 selectedSchedule,
                 setSelectedSchedule,
                 handleFolderSelect,
                 handleFileSelect,
+                deleteFile,
                 isDragging,
             }}
         >

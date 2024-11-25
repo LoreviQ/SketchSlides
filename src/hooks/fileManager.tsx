@@ -5,13 +5,13 @@ import { saveLastFolder, getLastFolder } from "../utils/indexDB";
 interface FileManagerState {
     selectedFolder: SelectedFolder | null;
     imageFiles: File[];
-    setImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
     isDragging: boolean;
 }
 
 interface FileManagerActions {
     handleFolderSelect: () => Promise<void>;
     handleFileSelect: () => void;
+    deleteFile: (index: number) => Promise<boolean>;
 }
 
 export function useFileManager(runApp: boolean): FileManagerState & FileManagerActions {
@@ -138,13 +138,36 @@ export function useFileManager(runApp: boolean): FileManagerState & FileManagerA
         };
     }, [runApp]);
 
+    const deleteFile = async (index: number): Promise<boolean> => {
+        if (!selectedFolder?.dirHandle) {
+            console.error("Cannot delete file: directory handle is null");
+            return false;
+        }
+
+        const fileToDelete = imageFiles[index];
+        const confirmDelete = window.confirm(`Are you sure you want to delete:\n${fileToDelete.name}?`);
+        if (!confirmDelete) return false;
+
+        try {
+            await selectedFolder.dirHandle.removeEntry(fileToDelete.name);
+            const newImageFiles = [...imageFiles];
+            newImageFiles.splice(index, 1);
+            setImageFiles(newImageFiles);
+            return true;
+        } catch (error) {
+            console.error("Error deleting file:", error);
+            alert("Failed to delete file. Make sure you have permission to modify files in this folder.");
+            return false;
+        }
+    };
+
     return {
         selectedFolder,
         imageFiles,
-        setImageFiles,
         isDragging,
         handleFolderSelect,
         handleFileSelect,
+        deleteFile,
     };
 }
 

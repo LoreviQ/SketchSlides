@@ -39,20 +39,19 @@ import { useApp } from "../contexts/AppContext";
 
 export default function Slideshow({}) {
     const { preferences } = usePreferences();
-    const { selectedFolder, imageFiles, setImageFiles, setRunApp, selectedSchedule } = useApp();
+    const { selectedFolder, imageFiles, setRunApp, selectedSchedule, deleteFile } = useApp();
     const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
     const [showOverlay, toggleShowOverlay] = useToggle(false);
     const sessionIntervals = preferences.sessionType === SessionType.Schedule ? selectedSchedule.toIntervals() : [];
     // Custom hook for managing the image order and URL
     const { currentImageUrl, next, prev, deleteCurrentImage, showImageInfo } = useImageManagement({
         imageFiles,
-        setImageFiles,
-        selectedFolder,
         sessionType: preferences.sessionType,
         sessionIntervals,
         currentIntervalIndex,
         setCurrentIntervalIndex,
         exit: () => setRunApp(false),
+        deleteFile,
     });
     // Custom hook for managing the timer
     const { counter, ticksPerSlide, isPaused, togglePause } = useTimer({

@@ -1,16 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
-import type { SelectedFolder } from "../types/preferences";
 import { SessionType } from "../types/session";
 
 interface ImageManagementConfig {
     imageFiles: File[];
-    setImageFiles: (files: File[]) => void;
-    selectedFolder: SelectedFolder | null;
     sessionType: SessionType;
     sessionIntervals?: number[];
     currentIntervalIndex?: number;
     setCurrentIntervalIndex?: React.Dispatch<React.SetStateAction<number>>;
     exit: () => void;
+    deleteFile: (index: number) => Promise<boolean>;
 }
 interface ImageManagementReturn {
     currentImageUrl: string;
@@ -21,13 +19,12 @@ interface ImageManagementReturn {
 }
 export const useImageManagement = ({
     imageFiles,
-    setImageFiles,
-    selectedFolder,
     sessionType,
     sessionIntervals = [],
     currentIntervalIndex = 0,
     setCurrentIntervalIndex,
     exit,
+    deleteFile,
 }: ImageManagementConfig): ImageManagementReturn => {
     const [imageOrder, setImageOrder] = useState(() => generateRandomOrder(imageFiles.length));
     const [orderIndex, setOrderIndex] = useState(0);
@@ -78,48 +75,29 @@ export const useImageManagement = ({
     }, [orderIndex]);
 
     const deleteCurrentImage = useCallback(async (): Promise<boolean> => {
-        if (!selectedFolder?.dirHandle) {
-            console.error("Cannot delete file: directory handle is null");
-            return false;
-        }
-        const currentFile = imageFiles[imageOrder[orderIndex]];
-        const deletedValue = imageOrder[orderIndex];
-
-        const confirmDelete = window.confirm(`Are you sure you want to delete:\n${currentFile.name}?`);
-        if (!confirmDelete) return false;
-
-        try {
-            await selectedFolder.dirHandle.removeEntry(currentFile.name);
-            const newImageFiles = [...imageFiles];
-            newImageFiles.splice(imageOrder[orderIndex], 1);
-
-            if (newImageFiles.length === 0) {
-                alert("No more images in folder. Returning to settings.");
+        const fileIndex = imageOrder[orderIndex];
+        const success = await deleteFile(fileIndex);
+        if (success) {
+            if (imageFiles.length <= 1) {
                 exit();
                 return true;
             }
 
-            const removedBeforeCurrent = imageOrder.slice(0, orderIndex).filter((idx) => idx === deletedValue).length;
+            // Update image order: remove all instances of deleted file and decrement higher values
+            const removedBeforeCurrent = imageOrder.slice(0, orderIndex).filter((idx) => idx === fileIndex).length;
             const newOrder = imageOrder
-                .filter((idx) => idx !== deletedValue)
-                .map((idx) => (idx > deletedValue ? idx - 1 : idx));
+                .filter((idx) => idx !== fileIndex)
+                .map((idx) => (idx > fileIndex ? idx - 1 : idx));
             const newIndex = orderIndex - removedBeforeCurrent;
-
-            setImageFiles(newImageFiles);
             setImageOrder((prevOrder) => {
                 setOrderIndex((_) => {
                     return Math.max(0, Math.min(newIndex, prevOrder.length - 1));
                 });
                 return newOrder;
             });
-
-            return true;
-        } catch (error) {
-            console.error("Error deleting file:", error);
-            alert("Failed to delete file. Make sure you have permission to modify files in this folder.");
-            return false;
         }
-    }, [orderIndex]);
+        return success;
+    }, [orderIndex, imageOrder, deleteFile]);
 
     const showImageInfo = useCallback((): string => {
         const currentFile = imageFiles[imageOrder[orderIndex]];
