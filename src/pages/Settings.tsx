@@ -35,18 +35,21 @@ export default function Settings({}) {
         <>
             {isDragging && <DragAndDropOverlay />}
             <div className="w-screen flex justify-center px-6">
-                <div className="w-full h-screen max-w-2xl p-6 flex flex-col space-y-4">
-                    <Hero />
-                    {"showDirectoryPicker" in window ? (
-                        <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
-                    ) : (
-                        <ActionButton onClick={handleFileSelect} label="Select Files" colour="bg-blue-600" />
-                    )}
-                    <FolderDetails selectedFolder={selectedFolder} />
-                    <hr className="border-gray-300 dark:border-gray-700" />
-                    <SessionToggle />
-                    <SessionTypeCard />
-                    <ActionButton onClick={runApp} label="Start" colour="bg-green-600" />
+                <div className="w-full h-screen max-w-2xl p-6 flex flex-col">
+                    <div className="flex-grow space-y-4">
+                        <Hero />
+                        {"showDirectoryPicker" in window ? (
+                            <ActionButton onClick={handleFolderSelect} label="Select Folder" colour="bg-blue-600" />
+                        ) : (
+                            <ActionButton onClick={handleFileSelect} label="Select Files" colour="bg-blue-600" />
+                        )}
+                        <FolderDetails selectedFolder={selectedFolder} />
+                        <hr className="border-gray-300 dark:border-gray-700" />
+                        <SessionToggle />
+                        <SessionTypeCard />
+                        <ActionButton onClick={runApp} label="Start" colour="bg-green-600" />
+                    </div>
+                    <Footer />
                 </div>
             </div>
         </>
@@ -370,6 +373,21 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave 
                     colour="bg-green-600/50"
                 />
             )}
+        </div>
+    );
+}
+
+function Footer() {
+    const version = import.meta.env.VITE_GIT_SHA || "X";
+    return (
+        <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 items-center text-center space-y-1">
+            <div>
+                Contact:{" "}
+                <a href="mailto:oliver.tj@oliver.tj" className="hover:text-gray-300">
+                    oliver.tj@oliver.tj
+                </a>
+            </div>
+            <div>Version 1.0.{version}</div>
         </div>
     );
 }
