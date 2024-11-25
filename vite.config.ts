@@ -11,10 +11,16 @@ export default defineConfig({
 		globPatterns: ['**/*.{js,css,html,png,svg}'], // Cache all relevant files
 	  },
 	  manifest: {
+		id: 'sketchslides',
 		name: 'SketchSlides',
 		short_name: 'sketchslides',
 		start_url: '/',
 		display: 'standalone',
+		description: 'A slideshow app for sketching and gesture drawing',
+		launch_handler: {
+			client_mode: ["navigate-existing", "auto"]
+		  },
+		orientation: "portrait-primary",
 		background_color: '#ffffff',
 		theme_color: '#000000',
 		icons: [
