@@ -19,6 +19,31 @@ export function useFileManager(runApp: boolean): FileManagerState & FileManagerA
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [isDragging, setIsDragging] = useState(false);
 
+    // Handle files opened via the launch queue
+    useEffect(() => {
+        if ("launchQueue" in window) {
+            (window as any).launchQueue.setConsumer(async (launchParams: any) => {
+                if (!launchParams.files.length) return;
+
+                const files = await Promise.all(
+                    launchParams.files.map((handle: FileSystemFileHandle) => handle.getFile())
+                );
+
+                const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+                if (imageFiles.length === 0) return;
+
+                const totalSize = imageFiles.reduce((sum, file) => sum + file.size, 0);
+                setSelectedFolder({
+                    name: "Opened Files",
+                    items: imageFiles.length,
+                    totalSize: totalSize,
+                    dirHandle: null,
+                });
+                setImageFiles(imageFiles);
+            });
+        }
+    }, []);
+
     const updateFolderData = async (dirHandle: FileSystemDirectoryHandle) => {
         const files = await FileScanner(dirHandle);
         if (files.length === 0) {
