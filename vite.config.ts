@@ -18,18 +18,20 @@ export default defineConfig({
 				display: 'standalone',
 				description: 'A slideshow app for sketching and gesture drawing',
 				orientation: "portrait-primary",
-				background_color: '#ffffff',
+				background_color: '#222124',
 				theme_color: '#000000',
 				icons: [
 					{
 						src: "/icons/sketchslides.png",
 						sizes: "1024x1024",
-						type: "image/png"
+						type: "image/png",
+						purpose: "any maskable"
 					},
 					{
 						src: "/icons/sketchslides_small.png",
 						sizes: "144x144",
-						type: "image/png"
+						type: "image/png",
+						purpose: "any maskable"
 					}
 				],
 				screenshots: [
