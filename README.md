@@ -110,4 +110,4 @@ For questions or suggestions, contact: oliver.tj@oliver.tj
 
 ## License
 
-[MIT](https://opensource.org/licenses/MIT)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
