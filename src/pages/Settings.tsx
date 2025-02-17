@@ -48,7 +48,7 @@ export default function Settings({}) {
                         <hr className="border-gray-700" />
                         <SessionToggle />
                         <SessionTypeCard />
-                        <ActionButton onClick={runApp} label="Start" colour="bg-green-600" />
+                        <ActionButton onClick={runApp} label="Start" colour="bg-green-700" />
                     </div>
                     <Footer />
                 </div>
@@ -371,7 +371,7 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave 
                         onSave?.();
                     }}
                     label="Save Changes"
-                    colour="bg-green-500"
+                    colour="bg-green-700"
                 />
             )}
         </div>
@@ -384,7 +384,7 @@ function Footer() {
         <div className="flex justify-between text-sm text-gray-400 items-center text-center">
             <div>
                 Contact:{" "}
-                <a href="mailto:oliver.tj@oliver.tj" className="hover:text-gray-300">
+                <a href="mailto:oliver.tj@oliver.tj" className="hover:underline">
                     oliver.tj@oliver.tj
                 </a>
             </div>
