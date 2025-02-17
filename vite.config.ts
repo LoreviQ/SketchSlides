@@ -70,7 +70,6 @@ export default defineConfig({
             'react',
             'react-dom',
             'react/jsx-runtime',
-            '@vitepwa/workbox',
             // These are your main dependencies that are used across components
           ],
           contexts: [
