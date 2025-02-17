@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { SelectedFolder } from "../types/preferences";
 import { saveLastFolder, getLastFolder } from "../utils/indexDB";
+import { logger } from '../utils/logger';
 
 interface FileManagerState {
     selectedFolder: SelectedFolder | null;
@@ -62,15 +63,24 @@ export function useFileManager(runApp: boolean): FileManagerState & FileManagerA
 
     const handleFolderSelect = async () => {
         if (!("showDirectoryPicker" in window)) {
-            console.error("Cannot select folder since the showDirectoryPicker API is not supported");
+            logger.error(new Error('showDirectoryPicker not supported'), {
+                context: 'FileManager'
+            });
             return;
         }
         try {
             const dirHandle = await window.showDirectoryPicker();
             await updateFolderData(dirHandle);
             await saveLastFolder(dirHandle);
+            logger.track('folder_selected', { 
+                context: 'FileManager',
+                data: { name: dirHandle.name }
+            });
         } catch (err) {
-            console.error("Error selecting folder:", err);
+            logger.error(err, { 
+                context: 'FileManager',
+                data: { action: 'folder_select' }
+            });
             if (err instanceof Error && err.name !== "AbortError") {
                 alert("An error occurred while selecting the folder");
             }
@@ -127,16 +137,28 @@ export function useFileManager(runApp: boolean): FileManagerState & FileManagerA
     useEffect(() => {
         if (runApp) return;
 
-        // Restore last folder on component mount
         const restoreLastFolder = async () => {
             try {
                 const handle = await getLastFolder();
-                if (!handle) return;
+                if (!handle) {
+                    logger.debug('No previous folder found', { 
+                        context: 'FileManager' 
+                    });
+                    return;
+                }
                 await updateFolderData(handle);
+                logger.debug('Previous folder restored', {
+                    context: 'FileManager',
+                    data: { name: handle.name }
+                });
             } catch (err) {
-                console.log("Could not restore last folder:", err);
+                logger.error(err, { 
+                    context: 'FileManager',
+                    data: { action: 'restore_folder' }
+                });
             }
         };
+        
         restoreLastFolder();
 
         // Enable drag and drop

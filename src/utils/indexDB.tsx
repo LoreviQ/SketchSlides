@@ -12,7 +12,6 @@ export async function getDatabase(): Promise<IDBDatabase> {
             const db = (event.target as IDBOpenDBRequest).result;
             // Create the object store if it doesn't exist
             if (!db.objectStoreNames.contains(STORE_NAME)) {
-                console.log("Creating object store:", STORE_NAME);
                 db.createObjectStore(STORE_NAME);
             }
         };
