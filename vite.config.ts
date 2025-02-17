@@ -69,7 +69,6 @@ export default defineConfig({
           vendor: [
             'react',
             'react-dom',
-            'react/jsx-runtime',
             // These are your main dependencies that are used across components
           ],
           contexts: [
