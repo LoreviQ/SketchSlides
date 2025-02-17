@@ -392,6 +392,7 @@ function Footer() {
                 <a href='https://ko-fi.com/O4O61AQHEB' target='_blank'>
                     <img 
                         height={36} 
+                        width={148}
                         style={{border: 0, height: '36px'}} 
                         src='https://storage.ko-fi.com/cdn/brandasset/v2/support_me_on_kofi_dark.png' 
                         alt='Buy Me a Coffee at ko-fi.com' 

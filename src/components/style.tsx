@@ -8,6 +8,8 @@ export function Hero() {
                         <img
                             src="/icons/sketchslides.png"
                             alt="SketchSlides Logo"
+                            width="1200"
+                            height="400"
                             className="w-full object-cover opacity-50"
                         />
                     </picture>
