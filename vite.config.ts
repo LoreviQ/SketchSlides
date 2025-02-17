@@ -62,4 +62,21 @@ export default defineConfig({
 			},
     	}),
   	],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          // Split other large dependencies into separate chunks
+        }
+      }
+    },
+    cssCodeSplit: true,
+    // Minify CSS
+    cssMinify: true,
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom']
+  }
 })

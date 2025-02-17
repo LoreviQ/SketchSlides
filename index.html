@@ -3,18 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content="SketchSlides - A modern web app for artists practicing gesture and figure drawing. Features customizable timing, image flipping, greyscale mode, and grid overlay. Works offline as a PWA." />
-    <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml" href="/icons/sketchslides.svg" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
-    <link rel="icon" type="image/webp" sizes="192x192" href="/icons/favicon-192x192.webp">
-    <link rel="icon" type="image/webp" sizes="512x512" href="/icons/favicon-512x512.webp">
+    
+    <!-- Critical Meta Tags -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SketchSlides</title>
+
+    <!-- Preload critical fonts -->
+    <link 
+      rel="preload" 
+      href="/fonts/Kalam-Bold.woff2" 
+      as="font" 
+      type="font/woff2" 
+      crossorigin
+    />
+
+    <!-- Defer non-critical icons -->
+    <link rel="icon" type="image/svg+xml" href="/icons/sketchslides.svg" />
+    <link 
+      rel="preload" 
+      as="image" 
+      href="/icons/sketchslides.webp" 
+      type="image/webp"
+    />
+    
+    <!-- Move non-critical icons to the bottom -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" media="(prefers-reduced-motion: no-preference)">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" media="(prefers-reduced-motion: no-preference)">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" media="(prefers-reduced-motion: no-preference)">
+    <link rel="icon" type="image/webp" sizes="192x192" href="/icons/favicon-192x192.webp" media="(prefers-reduced-motion: no-preference)">
+    <link rel="icon" type="image/webp" sizes="512x512" href="/icons/favicon-512x512.webp" media="(prefers-reduced-motion: no-preference)">
   </head>
   <body>
     <div id="root" class="mx-auto text-center"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx" async></script>
   </body>
 </html>
