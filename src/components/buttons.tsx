@@ -44,7 +44,7 @@ export function ToggleButton<T extends SessionType | FixedTime>({
     return (
         <button
             className={`${fullWidth ? "flex-1" : ""} py-2 px-4 rounded-lg transition ${
-                isSelected ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+                isSelected ? "bg-blue-600 text-white" : "bg-gray-700 text-white"
             }`}
             onClick={onClick}
         >
@@ -82,7 +82,7 @@ export function InputButton({
     return (
         <div
             className={`${fullWidth ? "flex-1" : ""} relative py-2 rounded-lg text-white inline-block ${
-                isSelected ? "bg-blue-600 " : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+                isSelected ? "bg-blue-600" : "bg-gray-700 text-white"
             }`}
         >
             <input
@@ -94,7 +94,7 @@ export function InputButton({
                 onChange={handleChange}
                 placeholder={placeholder}
                 className={`w-32 pe-8  text-white ${
-                    isSelected ? "bg-blue-600 " : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+                    isSelected ? "bg-blue-600 " : "bg-gray-700 text-white"
                 } outline-none text-right`}
             />
             {value !== "" && <span className="absolute right-6 pointer-events-none">s</span>}

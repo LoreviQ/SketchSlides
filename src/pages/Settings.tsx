@@ -44,7 +44,7 @@ export default function Settings({}) {
                             <ActionButton onClick={handleFileSelect} label="Select Files" colour="bg-blue-600" />
                         )}
                         <FolderDetails selectedFolder={selectedFolder} />
-                        <hr className="border-gray-300 dark:border-gray-700" />
+                        <hr className="border-gray-700" />
                         <SessionToggle />
                         <SessionTypeCard />
                         <ActionButton onClick={runApp} label="Start" colour="bg-green-600" />
@@ -61,7 +61,7 @@ function SessionToggle({}) {
     const updateSessionType = preferenceUpdater("sessionType", updatePreferences);
     return (
         <div className="space-y-4">
-            <h2 className="text-xl font-semibold dark:text-white">Session Type</h2>
+            <h2 className="text-xl font-semibold text-white">Session Type</h2>
             <div className="flex gap-2">
                 {Object.values(SessionType).map((type) => (
                     <ToggleButton
@@ -79,7 +79,7 @@ function SessionToggle({}) {
 function FolderDetails({ selectedFolder }: { selectedFolder: SelectedFolder | null }) {
     if (!selectedFolder) {
         return (
-            <div className="text-gray-500 dark:text-gray-400">
+            <div className="text-gray-400">
                 <p>{`No ${"showDirectoryPicker" in window ? "folder" : "files"} selected`}</p>
                 <p> Click the button, or drag and drop</p>
             </div>
@@ -87,8 +87,8 @@ function FolderDetails({ selectedFolder }: { selectedFolder: SelectedFolder | nu
     }
     return (
         <div>
-            <p className="dark:text-white font-medium">{selectedFolder.name}</p>
-            <p className="dark:text-white text-sm">
+            <p className="text-white font-medium">{selectedFolder.name}</p>
+            <p className="text-white text-sm">
                 {selectedFolder.items} items • {formatFileSize(selectedFolder.totalSize)}
             </p>
         </div>
@@ -121,7 +121,7 @@ function FixedCard({}) {
     const updateCustomFixedTime = preferenceUpdater("customFixedTime", updatePreferences);
     return (
         <>
-            <h2 className="text-xl font-semibold dark:text-white">Fixed Intervals</h2>
+            <h2 className="text-xl font-semibold text-white">Fixed Intervals</h2>
             <div className="flex flex-wrap gap-2">
                 {Object.values(FixedTime).map((time) => {
                     if (time === FixedTime.Other) {
@@ -293,10 +293,10 @@ function ScheduleSelector({
     return (
         <div
             className={`space-y-4
-            ${narrowMode ? "" : "pr-4 border-r border-gray-300 dark:border-gray-700"}
+            ${narrowMode ? "" : "pr-4 border-r border-gray-700"}
         `}
         >
-            <h2 className="text-xl font-semibold dark:text-white">Scheduled Intervals</h2>
+            <h2 className="text-xl font-semibold text-white">Scheduled Intervals</h2>
             <div className="space-y-2">
                 {schedules.map((schedule, index) => (
                     <ScheduleButton
@@ -311,7 +311,7 @@ function ScheduleSelector({
                 ))}
                 <div
                     className="w-full p-3 text-center border rounded-lg bg-zinc-900
-                    hover:bg-gray-800 border-gray-700 dark:text-white"
+                    hover:bg-gray-800 border-gray-700 text-white"
                     onClick={addNewSchedule}
                 >
                     + Create New Schedule
@@ -362,7 +362,7 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave 
                     <NewIntervalButton tempSchedule={tempSchedule} setTempSchedule={setTempSchedule} />
                 )}
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Total time: {tempSchedule.totalTimeString}</div>
+            <div className="text-sm text-white">Total time: {tempSchedule.totalTimeString}</div>
             {!tempSchedule.isDefault && (
                 <ActionButton
                     onClick={() => {
@@ -370,7 +370,7 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave 
                         onSave?.();
                     }}
                     label="Save Changes"
-                    colour="bg-green-600/50"
+                    colour="bg-green-500"
                 />
             )}
         </div>
@@ -379,7 +379,7 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave 
 function Footer() {
     const version = import.meta.env.VITE_GIT_SHA || "X";
     return (
-        <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 items-center text-center">
+        <div className="flex justify-between text-sm text-gray-400 items-center text-center">
             <div>
                 Contact:{" "}
                 <a href="mailto:oliver.tj@oliver.tj" className="hover:text-gray-300">
