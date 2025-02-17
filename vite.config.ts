@@ -66,15 +66,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: [
-            'react',
-            'react-dom',
-            // These are your main dependencies that are used across components
-          ],
-          contexts: [
-            './src/contexts/AppContext',
-            './src/contexts/PreferencesContext'
-          ],
+			vendor: ['react', 'react-dom'],
         },
       },
     },
