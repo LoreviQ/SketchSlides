@@ -66,10 +66,19 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          // Split other large dependencies into separate chunks
-        }
-      }
+          vendor: [
+            'react',
+            'react-dom',
+            'react/jsx-runtime',
+            '@vitepwa/workbox',
+            // These are your main dependencies that are used across components
+          ],
+          contexts: [
+            './src/contexts/AppContext',
+            './src/contexts/PreferencesContext'
+          ],
+        },
+      },
     },
     cssCodeSplit: true,
     // Minify CSS
