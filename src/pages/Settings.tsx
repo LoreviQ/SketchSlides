@@ -376,7 +376,6 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave 
         </div>
     );
 }
-
 function Footer() {
     const version = import.meta.env.VITE_GIT_SHA || "X";
     return (
@@ -385,6 +384,11 @@ function Footer() {
                 Contact:{" "}
                 <a href="mailto:oliver.tj@oliver.tj" className="hover:text-gray-300">
                     oliver.tj@oliver.tj
+                </a>
+            </div>
+            <div>
+                <a href="https://ko-fi.com/loreviq" target="_blank" rel="noopener noreferrer">
+                    <img src="/src/assets/kofi.png" alt="Support me on Ko-fi" className="h-8" />
                 </a>
             </div>
             <div>Version 1.0.{version}</div>
