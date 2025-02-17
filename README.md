@@ -1,50 +1,113 @@
-# React + TypeScript + Vite
+# SketchSlides
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern Progressive Web App (PWA) for creating customizable image slideshows, specifically designed for artists practicing gesture drawing and figure drawing.
 
-Currently, two official plugins are available:
+Try it now at [sketchslides.oliver.tj](https://sketchslides.oliver.tj)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- 🎨 **Artist-Focused Features**
+  - Customizable timing for each slide
+  - Image flipping
+  - Greyscale mode
+  - 3x3 grid overlay
+  - Optional timer display and sound cues
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- ⚡ **Modern Web Features**
+  - Works offline (PWA)
+  - Installable on any device
+  - Responsive design for desktop and mobile
+  - File system access for easy folder selection
+  - Drag and drop support
 
-- Configure the top-level `parserOptions` property like this:
+- ⚙️ **Flexible Session Types**
+  - Fixed intervals (preset or custom durations)
+  - Custom schedules with multiple intervals
+  - Relaxed mode for self-paced practice
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Installation
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### As a PWA (Recommended)
+1. Visit [sketchslides.oliver.tj](https://sketchslides.oliver.tj)
+2. Your browser will prompt you to install the app
+3. Once installed, SketchSlides will work offline and can be launched from your device like any other app
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+### From Source
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+- Clone the repository
+   ```bash
+   git clone https://github.com/olivertj/sketchslides
+   ```
+
+- Install dependencies
+   ```bash
+   npm install
+   ```
+
+- Run development server
+   ```bash
+   npm run dev
+   ```
+
+- Build for production
+   ```bash
+   npm run build
+   ```
+
+## Usage
+
+1. **Select Your Images**
+   - Click "Select Folder" (on supported browsers)
+   - Or use "Select Files" to choose individual images
+   - Alternatively, drag and drop your images/folder
+
+2. **Choose Session Type**
+   - Fixed: Set consistent intervals (30s, 1min, 2min, or custom)
+   - Schedule: Create custom interval sequences
+   - Relaxed: Manual control with no timer
+
+3. **Customize Your Experience**
+   - Toggle image modifications (flip, greyscale)
+   - Enable/disable grid overlay
+   - Adjust timer settings and sound cues
+   - Configure window resize behavior (in standalone mode)
+
+4. **During the Slideshow**
+   - Use on-screen controls or keyboard shortcuts
+   - Access image information
+   - Pause/resume the timer
+   - Navigate between images
+   - Delete images (when using folder selection)
+
+## Keyboard Shortcuts
+
+- `Left Arrow`: Previous image
+- `Right Arrow`: Next image
+- `Space`: Pause/Resume
+- `Esc`: Exit slideshow
+
+## Technical Details
+
+Built with:
+- React 18
+- TypeScript
+- Vite
+- TailwindCSS
+- Workbox (for PWA functionality)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Support
+
+If you find this tool useful, you can support the development via:
+- [Ko-fi](https://ko-fi.com/loreviq)
+
+## Contact
+
+For questions or suggestions, contact: oliver.tj@oliver.tj
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
