@@ -3,11 +3,14 @@ export function Hero() {
         <div className="flex flex-col justify-center">
             <div className="relative aspect-[3/1] max-h-52 overflow-hidden">
                 <div className="absolute inset-0 flex items-start">
-                    <img
-                        src="/icons/sketchslides.png"
-                        alt="SketchSlides Logo"
-                        className="w-full object-cover opacity-50"
-                    />
+                <picture>
+                        <source srcSet="/icons/sketchslides.webp" type="image/webp" />
+                        <img
+                            src="/icons/sketchslides.png"
+                            alt="SketchSlides Logo"
+                            className="w-full object-cover opacity-50"
+                        />
+                    </picture>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-b from-custom-dark from-0% via-transparent to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-l from-custom-dark from-0% via-transparent to-transparent" />

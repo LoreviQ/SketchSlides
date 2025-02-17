@@ -22,29 +22,29 @@ export default defineConfig({
 				theme_color: '#000000',
 				icons: [
 					{
-						src: "/icons/sketchslides.png",
+						src: "/icons/sketchslides.webp",
 						sizes: "1024x1024",
-						type: "image/png",
+						type: "image/webp",
 						purpose: "any maskable"
 					},
 					{
-						src: "/icons/sketchslides_small.png",
+						src: "/icons/sketchslides_small.webp",
 						sizes: "144x144",
-						type: "image/png",
+						type: "image/webp",
 						purpose: "any maskable"
 					}
 				],
 				screenshots: [
 					{
-						src: "/screenshots/desktop.png",
+						src: "/screenshots/desktop.webp",
 						sizes: "2560x1440",
-						type: "image/png",
+						type: "image/webp",
 						form_factor: "wide"
 					},
 					{
-						src: "/screenshots/mobile.png",
+						src: "/screenshots/mobile.webp",
 						sizes: "1080x2400",
-						type: "image/png",
+						type: "image/webp",
 						form_factor: "narrow"
 					}
 				],

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import type { SelectedFolder } from "../types/preferences";
 import { usePreferences, preferenceUpdater } from "../contexts/PreferencesContext";
 import { SessionType, FixedTime, CustomSchedule, IntervalGroup } from "../types/session";
@@ -376,6 +377,7 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave 
         </div>
     );
 }
+
 function Footer() {
     const version = import.meta.env.VITE_GIT_SHA || "X";
     return (
@@ -387,8 +389,13 @@ function Footer() {
                 </a>
             </div>
             <div>
-                <a href="https://ko-fi.com/loreviq" target="_blank" rel="noopener noreferrer">
-                    <img src="/src/assets/kofi.png" alt="Support me on Ko-fi" className="h-8" />
+                <a href='https://ko-fi.com/O4O61AQHEB' target='_blank'>
+                    <img 
+                        height={36} 
+                        style={{border: 0, height: '36px'}} 
+                        src='https://storage.ko-fi.com/cdn/brandasset/v2/support_me_on_kofi_dark.png' 
+                        alt='Buy Me a Coffee at ko-fi.com' 
+                    />
                 </a>
             </div>
             <div>Version 1.0.{version}</div>
