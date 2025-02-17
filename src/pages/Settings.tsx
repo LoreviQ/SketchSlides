@@ -381,7 +381,7 @@ function ScheduleDetails({ schedules, selectedSchedule, updateSchedules, onSave 
 function Footer() {
     const version = import.meta.env.VITE_GIT_SHA || "X";
     return (
-        <div className="flex justify-between text-sm text-gray-400 items-center text-center">
+        <div className="flex justify-between text-sm text-white items-center text-center">
             <div>
                 Contact:{" "}
                 <a href="mailto:oliver.tj@oliver.tj" className="hover:underline">
